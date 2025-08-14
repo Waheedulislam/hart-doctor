@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { IArticle } from "@/types/Articles";
+import { IArticle } from "@/types/Article";
 
 export const createArticle = async (
   articleData: IArticle
