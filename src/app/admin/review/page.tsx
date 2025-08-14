@@ -2,7 +2,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -22,13 +21,13 @@ import {
   MessageSquare,
   Shield,
   AlertCircle,
-  Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
 import { createReview } from "@/services/Review/Review";
 
+// Review Type
 type TReview = {
   _id?: string;
   title: string;
@@ -37,38 +36,40 @@ type TReview = {
   avatar?: string;
   description: string;
   rating: number;
+  securePassword: string;
 };
-
-// Secret password (manually set)
-const SECRET_PASSWORD = "mySecret123";
 
 // Zod schema for validation
 const reviewSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   name: z.string().min(2, "Name must be at least 2 characters"),
   role: z.string().optional(),
-  avatar: z.string().url().optional(),
+  avatar: z.string().url("Invalid URL format").optional(),
   description: z.string().min(5, "Description must be at least 5 characters"),
   rating: z.number().min(1).max(5, "Rating must be between 1 and 5"),
+  securePassword: z.string().min(1, "Secure password is required"),
 });
 
 export default function ReviewsPage() {
   const router = useRouter();
 
   // Form state
-  const [title, setTitle] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [description, setDescription] = useState("");
-  const [rating, setRating] = useState(5);
+  const [formData, setFormData] = useState<TReview>({
+    title: "",
+    name: "",
+    role: "",
+    avatar: "",
+    description: "",
+    rating: 5,
+    securePassword: "",
+  });
+
   const [hoverRating, setHoverRating] = useState(0);
-  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validate a single field
-  const validateField = (field: string, value: string | number) => {
+  // Generic field validator
+  const validateField = (field: keyof TReview, value: string | number) => {
     const singleFieldSchema = reviewSchema.pick({ [field]: true });
     const parsed = singleFieldSchema.safeParse({ [field]: value });
     setErrors((prev) => ({
@@ -77,62 +78,64 @@ export default function ReviewsPage() {
     }));
   };
 
+  // Handle input change with validation
+  const handleChange = (field: keyof TReview, value: string | number) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    validateField(field, value);
+  };
+
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Check secret password
-    if (password !== SECRET_PASSWORD) {
-      toast.error("Invalid secret password. You cannot submit.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const formData: Omit<TReview, "_id"> = {
-      title,
-      name,
-      role,
-      avatar,
-      description,
-      rating,
-    };
     const parsed = reviewSchema.safeParse(formData);
 
     if (!parsed.success) {
-      parsed.error.issues.forEach((issue) => toast.error(issue.message));
+      const newErrors: Record<string, string> = {};
+      parsed.error.issues.forEach((issue) => {
+        toast.error(issue.message);
+        if (issue.path[0]) {
+          newErrors[issue.path[0] as string] = issue.message;
+        }
+      });
+      setErrors(newErrors);
       setIsSubmitting(false);
       return;
     }
 
     try {
-      await createReview(parsed.data);
-      toast.success("Review submitted successfully!");
-
-      // Reset form
-      setTitle("");
-      setName("");
-      setRole("");
-      setAvatar("");
-      setDescription("");
-      setRating(5);
-      setPassword("");
-      setErrors({});
-
-      router.push("/admin/review/customer-review");
+      const result = await createReview(parsed.data);
+      if (result.success) {
+        toast.success("Review submitted successfully!");
+        setFormData({
+          title: "",
+          name: "",
+          role: "",
+          avatar: "",
+          description: "",
+          rating: 5,
+          securePassword: "",
+        });
+        setErrors({});
+        router.push("/admin/review/customer-review");
+      } else {
+        toast.error(result.message || "Failed to submit review");
+      }
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const isFormValid =
-    title.length >= 3 &&
-    name.length >= 2 &&
-    description.length >= 5 &&
-    rating >= 1 &&
-    password.length > 0;
+    formData.title.length >= 3 &&
+    formData.name.length >= 2 &&
+    formData.description.length >= 5 &&
+    formData.rating >= 1 &&
+    formData.securePassword.length > 0 &&
+    Object.values(errors).every((err) => !err);
 
   const renderStars = () => {
     return (
@@ -144,11 +147,13 @@ export default function ReviewsPage() {
             className="transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 rounded"
             onMouseEnter={() => setHoverRating(star)}
             onMouseLeave={() => setHoverRating(0)}
-            onClick={() => setRating(star)}
+            onClick={() => {
+              handleChange("rating", star);
+            }}
           >
             <Star
               className={`w-8 h-8 transition-colors duration-200 ${
-                star <= (hoverRating || rating)
+                star <= (hoverRating || formData.rating)
                   ? "text-orange-400 fill-orange-400"
                   : "text-gray-300 hover:text-orange-200"
               }`}
@@ -156,7 +161,7 @@ export default function ReviewsPage() {
           </button>
         ))}
         <span className="ml-3 text-sm font-medium text-orange-600">
-          {rating} out of 5 stars
+          {formData.rating} out of 5 stars
         </span>
       </div>
     );
@@ -175,7 +180,6 @@ export default function ReviewsPage() {
         />
       </div>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-orange-400 to-amber-500 rounded-full mb-6 shadow-lg">
             <MessageSquare className="w-10 h-10 text-white" />
@@ -189,7 +193,6 @@ export default function ReviewsPage() {
           </p>
         </div>
 
-        {/* Main Form Card */}
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm overflow-hidden">
           <div className="bg-gradient-to-r from-orange-400 to-amber-500 h-2"></div>
 
@@ -204,35 +207,21 @@ export default function ReviewsPage() {
 
           <CardContent className="px-8 pb-8">
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Personal Information Section */}
+              {/* Personal Information */}
               <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Personal Information
-                  </h3>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Name */}
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <User className="w-4 h-4 text-orange-400" />
+                    <label className="text-sm font-semibold text-gray-700">
                       Full Name *
                     </label>
                     <Input
-                      value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        validateField("name", e.target.value);
-                      }}
+                      value={formData.name}
+                      onChange={(e) => handleChange("name", e.target.value)}
                       placeholder="Enter your full name"
-                      className={`transition-all duration-200 ${
-                        errors.name
-                          ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                          : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
-                      }`}
+                      className={
+                        errors.name ? "border-red-300" : "border-gray-200"
+                      }
                     />
                     {errors.name && (
                       <div className="flex items-center gap-1 text-red-600 text-sm">
@@ -241,62 +230,54 @@ export default function ReviewsPage() {
                       </div>
                     )}
                   </div>
-
+                  {/* Role */}
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-orange-400" />
+                    <label className="text-sm font-semibold text-gray-700">
                       Role / Profession
                     </label>
                     <Input
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
+                      value={formData.role}
+                      onChange={(e) => handleChange("role", e.target.value)}
                       placeholder="e.g., Software Engineer, Teacher"
-                      className="border-gray-200 focus:border-orange-400 focus:ring-orange-100"
                     />
                   </div>
                 </div>
-
+                {/* Avatar */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
                     Avatar URL (Optional)
                   </label>
                   <Input
-                    value={avatar}
-                    onChange={(e) => setAvatar(e.target.value)}
+                    value={formData.avatar}
+                    onChange={(e) => handleChange("avatar", e.target.value)}
                     placeholder="https://example.com/your-photo.jpg"
-                    className="border-gray-200 focus:border-orange-400 focus:ring-orange-100"
+                    className={
+                      errors.avatar ? "border-red-300" : "border-gray-200"
+                    }
                   />
+                  {errors.avatar && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.avatar}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Review Content Section */}
+              {/* Review Content */}
               <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Your Review
-                  </h3>
-                </div>
-
+                {/* Title */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <Star className="w-4 h-4 text-orange-400" />
+                  <label className="text-sm font-semibold text-gray-700">
                     Review Title *
                   </label>
                   <Input
-                    value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                      validateField("title", e.target.value);
-                    }}
-                    placeholder="Summarize your experience in a few words"
-                    className={`transition-all duration-200 ${
-                      errors.title
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                        : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
-                    }`}
+                    value={formData.title}
+                    onChange={(e) => handleChange("title", e.target.value)}
+                    placeholder="Summarize your experience"
+                    className={
+                      errors.title ? "border-red-300" : "border-gray-200"
+                    }
                   />
                   {errors.title && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
@@ -306,6 +287,7 @@ export default function ReviewsPage() {
                   )}
                 </div>
 
+                {/* Rating */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
                     Your Rating *
@@ -313,21 +295,28 @@ export default function ReviewsPage() {
                   <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">
                     {renderStars()}
                   </div>
+                  {errors.rating && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.rating}
+                    </div>
+                  )}
                 </div>
 
+                {/* Description */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
                     Detailed Review *
                   </label>
                   <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={formData.description}
+                    onChange={(e) =>
+                      handleChange("description", e.target.value)
+                    }
                     placeholder="Tell us more about your experience"
-                    className={`transition-all duration-200 ${
-                      errors.description
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                        : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
-                    }`}
+                    className={
+                      errors.description ? "border-red-300" : "border-gray-200"
+                    }
                   />
                   {errors.description && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
@@ -337,32 +326,34 @@ export default function ReviewsPage() {
                   )}
                 </div>
 
+                {/* Password */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-orange-400" />
-                    Secret Password *
+                  <label className="text-sm font-semibold text-gray-700">
+                    Secure Password *
                   </label>
                   <Input
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     type="password"
-                    placeholder="Enter the secret password"
-                    className={`transition-all duration-200 ${
-                      password !== SECRET_PASSWORD
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                        : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
-                    }`}
+                    value={formData.securePassword}
+                    onChange={(e) =>
+                      handleChange("securePassword", e.target.value)
+                    }
+                    placeholder="Enter secure password"
+                    className={
+                      errors.securePassword
+                        ? "border-red-300"
+                        : "border-gray-200"
+                    }
                   />
-                  {password !== SECRET_PASSWORD && (
+                  {errors.securePassword && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
-                      Invalid secret password
+                      {errors.securePassword}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <div className="flex justify-center">
                 <Button
                   type="submit"
@@ -372,16 +363,6 @@ export default function ReviewsPage() {
                   {isSubmitting ? "Submitting..." : "Submit Review"}
                 </Button>
               </div>
-              {/* ✅ Extra link under form */}
-              <p className="text-sm text-center text-slate-600 dark:text-slate-300 mt-4">
-                Want to manage all reviews?{" "}
-                <a
-                  href="/admin/review/customer-review"
-                  className="text-blue-600 hover:underline"
-                >
-                  Go to Review Management
-                </a>
-              </p>
             </form>
           </CardContent>
         </Card>
