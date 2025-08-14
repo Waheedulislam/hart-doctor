@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,9 +18,11 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
-import ReviewsSection from "./customer-review/page";
 import { TReview } from "@/types/Review";
 import { createReview } from "@/services/Review/Review";
+
+// Secret password (manually set)
+const SECRET_PASSWORD = "mySecret123";
 
 // Zod schema for validation
 const reviewSchema = z.object({
@@ -32,6 +35,8 @@ const reviewSchema = z.object({
 });
 
 export default function ReviewsPage() {
+  const router = useRouter();
+
   // Form state
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
@@ -39,6 +44,7 @@ export default function ReviewsPage() {
   const [avatar, setAvatar] = useState("");
   const [description, setDescription] = useState("");
   const [rating, setRating] = useState(5);
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Validate a single field
@@ -54,6 +60,13 @@ export default function ReviewsPage() {
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ✅ Check secret password
+    if (password !== SECRET_PASSWORD) {
+      toast.error("Invalid secret password. You cannot submit.");
+      return;
+    }
+
     const formData: Omit<TReview, "_id"> = {
       title,
       name,
@@ -80,7 +93,11 @@ export default function ReviewsPage() {
       setAvatar("");
       setDescription("");
       setRating(5);
+      setPassword("");
       setErrors({});
+
+      // ✅ Redirect after submit
+      router.push("/admin/review/customer-review");
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -90,7 +107,8 @@ export default function ReviewsPage() {
     title.length >= 3 &&
     name.length >= 2 &&
     description.length >= 5 &&
-    rating >= 1;
+    rating >= 1 &&
+    password.length > 0;
 
   return (
     <div className="min-h-screen">
@@ -205,17 +223,38 @@ export default function ReviewsPage() {
                     onChange={(e) => setRating(Number(e.target.value))}
                   />
                 </div>
+
+                {/* ✅ Secret Password Field */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">
+                    Secret Password *
+                  </label>
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter secret password..."
+                  />
+                </div>
               </div>
 
               <Button type="submit" disabled={!isFormValid}>
                 Submit Review
               </Button>
+
+              {/* ✅ Extra link under form */}
+              <p className="text-sm text-center text-slate-600 dark:text-slate-300 mt-4">
+                Want to manage all reviews?{" "}
+                <a
+                  href="/admin/review/customer-review"
+                  className="text-blue-600 hover:underline"
+                >
+                  Go to Review Management
+                </a>
+              </p>
             </form>
           </CardContent>
         </Card>
-
-        {/* Display Reviews Section */}
-        {/* <ReviewsSection /> */}
       </div>
     </div>
   );
