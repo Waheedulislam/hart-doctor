@@ -1,4 +1,6 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Clock, ChevronRight, CalendarDays, UserRound } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -26,69 +28,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import { BlogPost } from "@/types/BlogPost";
+import { IArticle } from "@/types/Article";
+import { getAllArticle } from "@/services/Article";
 
-// Default posts
-const defaultPosts: BlogPost[] = [
-  {
-    id: 1,
-    title: "Hands-only CPR: Learn the basics in 2 minutes",
-    excerpt:
-      "The first 2 minutes are critical when the heart stops. Here are guideline-based, hands-on tips you can apply immediately.",
-    date: "2025-08-01",
-    readTime: "4 min",
-    author: "Dr. Ayesha Rahman",
-    category: "Basics",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuS0uEluNre4mVdeItbCeyEy5J5Z9JeJUNQ2r0nd4U98WWB_19GPjKmdL3cIJvfE_zObI&usqp=CAU",
-    href: "#",
-  },
-  {
-    id: 2,
-    title: "Common CPR mistakes and how to avoid them",
-    excerpt:
-      "Compression depth, rate, and hand position—these are where most errors happen. Learn simple fixes that improve outcomes.",
-    date: "2025-07-24",
-    readTime: "5 min",
-    author: "Nurse S. Chowdhury",
-    category: "Tips",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkukDIv6t3-WxXISEm26kWxy5MI0wxXFyb2Q&s",
-    href: "#",
-  },
-  {
-    id: 3,
-    title: "CPR differences: infants, children, and adults",
-    excerpt:
-      "Technique varies across ages. See what to adjust depending on the situation to stay safe and effective.",
-    date: "2025-06-30",
-    readTime: "6 min",
-    author: "Paramedic R. Khan",
-    category: "Pediatrics",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8FkCxeovqEj1FuapVexgUXY8AxTUSUNF9dQnbGigRi6wRKUTBQKwpzLDMSQ9TELfFXTQ&usqp=CAU",
-    href: "#",
-  },
-  {
-    id: 4,
-    title: "CPR differences: infants, children, and adults",
-    excerpt:
-      "Technique varies across ages. See what to adjust depending on the situation to stay safe and effective.",
-    date: "2025-06-30",
-    readTime: "6 min",
-    author: "Paramedic R. Khan",
-    category: "Pediatrics",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7jLWHDm6tb-dKsIDDsXyMttgWzsTo9sqSeQ&s",
-    href: "#",
-  },
-];
-
-export function BlogCard({ post }: { post: BlogPost }) {
+// Blog Card Component
+export function BlogCard({ post }: { post: IArticle }) {
   return (
-    <Card className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-neutral-200 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 dark:bg-neutral-900 dark:ring-neutral-800">
+    <Card className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-neutral-200 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 dark:bg-neutral-900 dark:ring-neutral-800 rounded-3xl">
       {/* Image */}
-      <div className="relative w-full h-56 overflow-hidden">
+      <div className="relative w-full h-56 overflow-hidden rounded-t-3xl">
         <Image
           src={post.image || "/placeholder.svg"}
           alt={`Article image for ${post.title}`}
@@ -98,7 +46,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="absolute left-3 top-3">
-          <Badge className=" bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+          <Badge className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
             #{post.category}
           </Badge>
         </div>
@@ -151,12 +99,38 @@ export function BlogCard({ post }: { post: BlogPost }) {
   );
 }
 
+// Blog Section Component
 export default function BlogSection({
   title = "CPR Blog",
   subtitle = "Right action at the right time—learn, share, and save lives.",
-  posts = defaultPosts,
-  ctaHref = "#",
+  ctaHref = "/blog",
 }) {
+  const [articles, setArticles] = useState<IArticle[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await getAllArticle();
+        if (response.success) {
+          setArticles(response.data.result);
+        } else {
+          console.error("Failed to fetch articles:", response.message);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  if (loading) return <p className="text-center py-12">Loading...</p>;
+  if (!articles.length)
+    return <p className="text-center py-12">No articles found.</p>;
+
   return (
     <section className="w-full">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
@@ -176,7 +150,7 @@ export default function BlogSection({
             variant="outline"
             className="hidden sm:inline-flex bg-transparent hover:text-white hover:bg-emerald-600"
           >
-            <Link href="/blog">View all posts</Link>
+            <Link href={ctaHref}>View all posts</Link>
           </Button>
         </header>
 
@@ -190,7 +164,7 @@ export default function BlogSection({
             A11y,
             EffectCoverflow,
           ]}
-          spaceBetween={30} // increased gap
+          spaceBetween={30}
           slidesPerView={1.1}
           grabCursor
           keyboard={{ enabled: true }}
@@ -215,10 +189,10 @@ export default function BlogSection({
             768: { slidesPerView: 2.2, spaceBetween: 32 },
             1024: { slidesPerView: 3, spaceBetween: 36 },
           }}
-          className="[--swiper-navigation-color:theme(colors.emerald.600)] [--swiper-pagination-color:theme(colors.teal.500)] bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent"
+          className="[--swiper-navigation-color:theme(colors.emerald.600)] [--swiper-pagination-color:theme(colors.teal.500)]"
         >
-          {posts.map((post) => (
-            <SwiperSlide key={post.id}>
+          {articles.map((post) => (
+            <SwiperSlide key={post._id}>
               <BlogCard post={post} />
             </SwiperSlide>
           ))}
