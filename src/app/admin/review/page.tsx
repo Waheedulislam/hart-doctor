@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,11 +15,11 @@ import {
 import { Star, User, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
+
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
-import Image from "next/image";
+import ReviewsSection from "./customer-review/page";
 import { TReview } from "@/types/Review";
-import { createReview, getAllReview } from "@/services/Review/Review";
-import ReviewsSection from "./ReviewSection";
+import { createReview } from "@/services/Review/Review";
 
 // Zod schema for validation
 const reviewSchema = z.object({
@@ -31,12 +31,7 @@ const reviewSchema = z.object({
   rating: z.number().min(1).max(5, "Rating must be between 1 and 5"),
 });
 
-// Main page
 export default function ReviewsPage() {
-  const [reviews, setReviews] = useState<TReview[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   // Form state
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
@@ -45,21 +40,6 @@ export default function ReviewsPage() {
   const [description, setDescription] = useState("");
   const [rating, setRating] = useState(5);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  // Fetch reviews
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const data = await getAllReview();
-        setReviews(data?.data?.result);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchReviews();
-  }, []);
 
   // Validate a single field
   const validateField = (field: string, value: string | number) => {
@@ -74,7 +54,6 @@ export default function ReviewsPage() {
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const formData: Omit<TReview, "_id"> = {
       title,
       name,
@@ -83,17 +62,16 @@ export default function ReviewsPage() {
       description,
       rating,
     };
-
     const parsed = reviewSchema.safeParse(formData);
+
     if (!parsed.success) {
       parsed.error.issues.forEach((issue) => toast.error(issue.message));
       return;
     }
 
     try {
-      const newReview = await createReview(parsed.data);
+      await createReview(parsed.data);
       toast.success("Review submitted successfully!");
-      setReviews((prev) => [...prev, newReview]);
 
       // Reset form
       setTitle("");
@@ -113,33 +91,6 @@ export default function ReviewsPage() {
     name.length >= 2 &&
     description.length >= 5 &&
     rating >= 1;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-slate-600 dark:text-slate-300 font-medium">
-            Loading reviews...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Card className="w-full max-w-md border-red-200 dark:border-red-800">
-          <CardContent className="pt-6 text-center">
-            <p className="text-red-600 dark:text-red-400 font-semibold">
-              {error}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">
@@ -168,6 +119,7 @@ export default function ReviewsPage() {
               Help others by sharing your valuable feedback
             </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -262,8 +214,8 @@ export default function ReviewsPage() {
           </CardContent>
         </Card>
 
-        {/* Display Reviews */}
-        <ReviewsSection reviews={reviews} />
+        {/* Display Reviews Section */}
+        {/* <ReviewsSection /> */}
       </div>
     </div>
   );
