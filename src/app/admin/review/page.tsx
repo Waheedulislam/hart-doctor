@@ -364,6 +364,16 @@ export default function ReviewsPage() {
                 </Button>
               </div>
             </form>
+            {/* ✅ Extra link under form */}
+            <p className="text-sm text-center mt-10 text-slate-600 dark:text-slate-300 ">
+              Want to manage all reviews?{" "}
+              <a
+                href="/admin/review/customer-review"
+                className="text-blue-600 hover:underline"
+              >
+                Go to Review Management
+              </a>
+            </p>
           </CardContent>
         </Card>
       </div>

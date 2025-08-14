@@ -8,21 +8,41 @@ import { Trash2, User, Briefcase, Star, Quote } from "lucide-react";
 import Swal from "sweetalert2";
 import type { TReview } from "@/types/Review";
 import { deleteReview } from "@/services/Review/Review";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ReviewCardProps {
   review: TReview;
   onDelete?: (id: string) => void;
 }
 
+const SECURE_PASSWORD = "mySecret123"; // Manual secure password
+
 export default function EnhancedReviewCard({
   review,
   onDelete,
 }: ReviewCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
-  const handleDelete = async (id: string) => {
-    const result = await Swal.fire({
+  const rating = review.rating || Math.floor(Math.random() * 2) + 4;
+
+  // Real-time password validation
+  useEffect(() => {
+    if (!passwordInput) {
+      setPasswordError("Secure password is required");
+    } else if (passwordInput !== SECURE_PASSWORD) {
+      setPasswordError("Password does not match");
+    } else {
+      setPasswordError(""); // Correct password
+    }
+  }, [passwordInput]);
+
+  const handleDelete = async () => {
+    if (passwordInput !== SECURE_PASSWORD) return; // Prevent delete if password wrong
+
+    const confirmDelete = await Swal.fire({
       title: "Delete Review?",
       text: "This action cannot be undone.",
       icon: "warning",
@@ -38,48 +58,46 @@ export default function EnhancedReviewCard({
       },
     });
 
-    if (result.isConfirmed) {
-      setIsDeleting(true);
-      try {
-        await deleteReview(id);
+    if (!confirmDelete.isConfirmed) return;
 
-        Swal.fire({
-          title: "Deleted!",
-          text: "Review has been removed successfully.",
-          icon: "success",
-          confirmButtonColor: "#f97316",
-          customClass: {
-            popup: "rounded-xl",
-            confirmButton: "rounded-lg px-6 py-2",
-          },
-        });
-        onDelete?.(id);
-      } catch (error: any) {
-        Swal.fire({
-          title: "Error!",
-          text: error.message || "Something went wrong.",
-          icon: "error",
-          confirmButtonColor: "#f97316",
-          customClass: {
-            popup: "rounded-xl",
-            confirmButton: "rounded-lg px-6 py-2",
-          },
-        });
-      } finally {
-        setIsDeleting(false);
-      }
+    setIsDeleting(true);
+    try {
+      await deleteReview(review._id!); // Call your API
+      Swal.fire({
+        title: "Deleted!",
+        text: "Review has been removed successfully.",
+        icon: "success",
+        confirmButtonColor: "#f97316",
+        customClass: {
+          popup: "rounded-xl",
+          confirmButton: "rounded-lg px-6 py-2",
+        },
+      });
+      onDelete?.(review._id!);
+    } catch (error: any) {
+      Swal.fire({
+        title: "Error!",
+        text: error.message || "Something went wrong.",
+        icon: "error",
+        confirmButtonColor: "#f97316",
+        customClass: {
+          popup: "rounded-xl",
+          confirmButton: "rounded-lg px-6 py-2",
+        },
+      });
+    } finally {
+      setIsDeleting(false);
+      setPasswordInput("");
+      setShowPasswordInput(false);
     }
   };
 
-  // Use provided rating or generate mock rating for visual appeal
-  const rating = review.rating || Math.floor(Math.random() * 2) + 4; // 4-5 stars for demo
-
   return (
     <Card className="group relative overflow-hidden transition-all duration-500 ease-out border-0 bg-gradient-to-br from-white via-white to-orange-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-800 shadow-sm hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 rounded-2xl">
-      {/* Subtle background pattern */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-orange-100/20 dark:to-orange-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      {/* Quote decoration */}
+      {/* Quote Icon */}
       <div className="absolute top-4 right-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
         <Quote className="w-16 h-16 text-orange-500" />
       </div>
@@ -87,7 +105,7 @@ export default function EnhancedReviewCard({
       <CardHeader className="pb-4 relative z-10">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
-            {/* Rating stars */}
+            {/* Stars */}
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -125,25 +143,22 @@ export default function EnhancedReviewCard({
             </div>
           </div>
 
-          {review._id && (
+          {/* Trash Button */}
+          {review._id && !showPasswordInput && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleDelete(review._id!)}
-              disabled={isDeleting}
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-white hover:bg-red-500 rounded-full w-9 h-9 p-0 shadow-lg hover:shadow-red-500/25 hover:scale-110 disabled:opacity-50"
+              onClick={() => setShowPasswordInput(true)}
+              className="opacity-0 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-white hover:bg-red-500 rounded-full w-9 h-9 p-0 shadow-lg hover:shadow-red-500/25 hover:scale-110"
             >
-              <Trash2
-                className={`w-4 h-4 ${isDeleting ? "animate-pulse" : ""}`}
-              />
+              <Trash2 className="w-4 h-4" />
             </Button>
           )}
         </div>
       </CardHeader>
 
-      <CardContent className="relative z-10">
+      <CardContent className="relative z-10 space-y-4">
         <div className="relative">
-          {/* Left border accent */}
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
 
           <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-6 text-base">
@@ -151,11 +166,37 @@ export default function EnhancedReviewCard({
           </p>
         </div>
 
-        {/* Bottom accent line */}
+        {/* Password Input */}
+        {showPasswordInput && (
+          <div className="mt-4">
+            <input
+              type="password"
+              placeholder="Enter secure password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            )}
+            <Button
+              onClick={handleDelete}
+              disabled={!!passwordError || isDeleting}
+              className={`mt-2 w-full text-white font-semibold rounded-lg p-2 transition-all duration-300 
+    ${
+      !!passwordError
+        ? "opacity-50 cursor-not-allowed bg-gray-300"
+        : "bg-gradient-to-r from-orange-400 to-yellow-300 hover:from-orange-500 hover:to-yellow-500 shadow-lg hover:shadow-orange-500/40"
+    }`}
+            >
+              {isDeleting ? "Deleting..." : "Confirm Delete"}
+            </Button>
+          </div>
+        )}
+
         <div className="mt-6 h-px bg-gradient-to-r from-transparent via-orange-200 dark:via-orange-800 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </CardContent>
 
-      {/* Hover glow effect */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
     </Card>
   );
