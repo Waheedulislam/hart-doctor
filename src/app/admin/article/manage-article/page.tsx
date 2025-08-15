@@ -5,22 +5,22 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 
-import type { TReview } from "@/types/Review";
-import { getAllReview } from "@/services/Review/Review";
-import EnhancedReviewCard from "./ReviewCard";
+import EnhancedReviewCard from "./ArticleCard";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
+import { getAllArticle } from "@/services/Article";
+import { IArticle } from "../page";
 
 export default function ReviewsSection() {
-  const [reviews, setReviews] = useState<TReview[]>([]);
+  const [articles, setArticles] = useState<IArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  console.log(articles);
   // Fetch reviews
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const data = await getAllReview();
-        setReviews(data?.data?.result || []);
+        const data = await getAllArticle();
+        setArticles(data?.data?.result || []);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -32,7 +32,7 @@ export default function ReviewsSection() {
 
   // Remove review from UI when deleted
   const handleDeleteFromUI = (id: string) => {
-    setReviews((prev) => prev.filter((r) => r._id !== id));
+    setArticles((prev) => prev.filter((r) => r._id !== id));
   };
 
   if (loading) {
@@ -68,32 +68,32 @@ export default function ReviewsSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="text-center my-7 text-3xl">
           <p className="text-slate-600 dark:text-slate-400">
-            <span className="text-teal-700 font-bold ">{reviews.length}</span>{" "}
-            {reviews.length === 1 ? "review" : "reviews"} from our valued
+            <span className="text-teal-700 font-bold ">{articles.length}</span>{" "}
+            {articles.length === 1 ? "review" : "reviews"} from our valued
             customers
           </p>
         </div>
 
-        {reviews.length === 0 ? (
+        {articles.length === 0 ? (
           <Card className="text-center py-12 border-dashed border-2 border-slate-300 dark:border-slate-600">
             <CardContent>
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-slate-400" />
               </div>
               <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-400 mb-2">
-                No reviews yet
+                No articles yet
               </h3>
               <p className="text-slate-500 dark:text-slate-500">
-                Be the first to share your experience!
+                Please upload article
               </p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {reviews.map((review, index) => (
+            {articles.map((article, index) => (
               <EnhancedReviewCard
-                key={review._id ?? `${review.title}-${index}`}
-                review={review}
+                key={article._id ?? `${article.title}-${index}`}
+                article={article}
                 onDelete={handleDeleteFromUI}
               />
             ))}

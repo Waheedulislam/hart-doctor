@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { IArticle } from "@/types/Article";
 import Image from "next/image";
 import { getAllArticle } from "@/services/Article";
@@ -16,7 +10,7 @@ import { getAllArticle } from "@/services/Article";
 const BlogPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  console.log(articles);
   useEffect(() => {
     const fetchArticles = async () => {
       try {

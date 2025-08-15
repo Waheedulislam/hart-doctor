@@ -3,9 +3,7 @@
 
 import { IArticle } from "@/types/Article";
 
-export const createArticle = async (
-  articleData: IArticle
-): Promise<IArticle | Error> => {
+export const createArticle = async (articleData: IArticle) => {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_API}/article/create-article`,

@@ -4,24 +4,23 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, User, Briefcase, Star, Quote } from "lucide-react";
+import { Trash2, User, BookOpen, Clock, Quote } from "lucide-react";
 import Swal from "sweetalert2";
-import type { TReview } from "@/types/Review";
 import { useState, useEffect } from "react";
+import { IArticle } from "@/types/Article";
 
-interface ReviewCardProps {
-  review: TReview;
+interface ArticleCardProps {
+  article: IArticle;
   onDelete?: (id: string) => void;
 }
 
-// DELETE ফাংশন এখন পাসওয়ার্ড সহ body পাঠাচ্ছে
-export const deleteReview = async (
-  reviewId: string,
+export const deleteArticle = async (
+  articleId: string,
   password: string
 ): Promise<boolean | Error> => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_API}/review/${reviewId}`,
+      `${process.env.NEXT_PUBLIC_BASE_API}/article/${articleId}`,
       {
         method: "DELETE",
         headers: {
@@ -34,7 +33,7 @@ export const deleteReview = async (
     if (!res.ok) {
       const errorData = await res.json();
       throw new Error(
-        errorData.message || `Failed to delete review: ${res.status}`
+        errorData.message || `Failed to delete article: ${res.status}`
       );
     }
 
@@ -44,23 +43,20 @@ export const deleteReview = async (
   }
 };
 
-export default function EnhancedReviewCard({
-  review,
+export default function EnhancedArticleCard({
+  article,
   onDelete,
-}: ReviewCardProps) {
+}: ArticleCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const rating = review.rating || Math.floor(Math.random() * 2) + 4;
-
-  // পাসওয়ার্ড যাচাই (ফ্রন্টএন্ডে রিয়েল-টাইম)
   useEffect(() => {
     if (!passwordInput) {
       setPasswordError("Secure password is required");
     } else {
-      setPasswordError(""); // ফ্রন্টএন্ডে শুধু খালি বা না-খাওয়া যাচাই
+      setPasswordError("");
     }
   }, [passwordInput]);
 
@@ -68,7 +64,7 @@ export default function EnhancedReviewCard({
     if (!passwordInput) return;
 
     const confirmDelete = await Swal.fire({
-      title: "Delete Review?",
+      title: "Delete Article?",
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
@@ -87,12 +83,12 @@ export default function EnhancedReviewCard({
 
     setIsDeleting(true);
     try {
-      const result = await deleteReview(review._id!, passwordInput);
+      const result = await deleteArticle(article._id!, passwordInput);
       if (result instanceof Error) throw result;
 
       Swal.fire({
         title: "Deleted!",
-        text: "Review has been removed successfully.",
+        text: "Article has been removed successfully.",
         icon: "success",
         confirmButtonColor: "#f97316",
         customClass: {
@@ -100,7 +96,8 @@ export default function EnhancedReviewCard({
           confirmButton: "rounded-lg px-6 py-2",
         },
       });
-      onDelete?.(review._id!);
+
+      onDelete?.(article._id!);
     } catch (error: any) {
       Swal.fire({
         title: "Error!",
@@ -129,44 +126,29 @@ export default function EnhancedReviewCard({
       <CardHeader className="pb-4 relative z-10">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-4 h-4 transition-colors duration-200 ${
-                    i < rating
-                      ? "text-orange-400 fill-orange-400"
-                      : "text-gray-300 dark:text-gray-600"
-                  }`}
-                />
-              ))}
-              <span className="text-sm text-gray-600 dark:text-gray-400 ml-2 font-medium">
-                {rating}.0
-              </span>
-            </div>
-
             <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent leading-tight">
-              {review.title}
+              {article.title}
             </CardTitle>
 
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
               <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg">
                   <User className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-semibold">{review.name}</span>
+                <span className="font-semibold">{article.author}</span>
               </div>
 
-              {review.role && (
-                <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-md hover:shadow-lg transition-shadow duration-200 rounded-full px-3 py-1">
-                  <Briefcase className="w-3 h-3 mr-1.5" />
-                  {review.role}
-                </Badge>
-              )}
+              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-md hover:shadow-lg transition-shadow duration-200 rounded-full px-3 py-1">
+                <BookOpen className="w-3 h-3 mr-1.5" /> {article.category}
+              </Badge>
+
+              <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0 shadow-md hover:shadow-lg transition-shadow duration-200 rounded-full px-3 py-1">
+                <Clock className="w-3 h-3 mr-1.5" /> {article.readTime}
+              </Badge>
             </div>
           </div>
 
-          {review._id && !showPasswordInput && (
+          {article._id && !showPasswordInput && (
             <Button
               variant="ghost"
               size="sm"
@@ -183,7 +165,7 @@ export default function EnhancedReviewCard({
         <div className="relative">
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
           <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-6 text-base">
-            {review.description}
+            {article.description}
           </p>
         </div>
 
@@ -202,12 +184,11 @@ export default function EnhancedReviewCard({
             <Button
               onClick={handleDelete}
               disabled={!!passwordError || isDeleting}
-              className={`mt-2 w-full text-white font-semibold rounded-lg p-2 transition-all duration-300 
-                ${
-                  !!passwordError
-                    ? "opacity-50 cursor-not-allowed bg-gray-300"
-                    : "bg-gradient-to-r from-orange-400 to-yellow-300 hover:from-orange-500 hover:to-yellow-500 shadow-lg hover:shadow-orange-500/40"
-                }`}
+              className={`mt-2 w-full text-white font-semibold rounded-lg p-2 transition-all duration-300 ${
+                !!passwordError
+                  ? "opacity-50 cursor-not-allowed bg-gray-300"
+                  : "bg-gradient-to-r from-orange-400 to-yellow-300 hover:from-orange-500 hover:to-yellow-500 shadow-lg hover:shadow-orange-500/40"
+              }`}
             >
               {isDeleting ? "Deleting..." : "Confirm Delete"}
             </Button>

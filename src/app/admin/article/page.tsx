@@ -14,64 +14,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Star, MessageSquare, AlertCircle } from "lucide-react";
+import { MessageSquare, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
-import { createReview } from "@/services/Review/Review";
+import { createArticle } from "@/services/Article";
+import { articleValidationSchema } from "@/components/validationSchema/articleValidationSchema";
 
-// Review Type
-type TReview = {
+export interface IArticle {
   _id?: string;
   title: string;
-  name: string;
-  role?: string;
-  avatar?: string;
+  author: string;
+  image: string;
+  category: string;
   description: string;
-  rating: number;
+  readTime: string;
   securePassword: string;
-};
+}
 
-// Zod schema for validation
-const reviewSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.string().optional(),
-  avatar: z.string().url("Invalid URL format").optional(),
-  description: z.string().min(5, "Description must be at least 5 characters"),
-  rating: z.number().min(1).max(5, "Rating must be between 1 and 5"),
-  securePassword: z.string().min(1, "Secure password is required"),
-});
-
-// hardcoded password
+// Password for admin image uploads
 const REQUIRED_PASSWORD = "mySecret123";
 
 export default function ReviewsPage() {
   const router = useRouter();
 
-  // Form state
-  const [formData, setFormData] = useState<TReview>({
+  const [formData, setFormData] = useState<IArticle>({
     title: "",
-    name: "",
-    role: "",
-    avatar: "",
+    author: "",
+    image: "",
+    category: "",
     description: "",
-    rating: 5,
+    readTime: "",
     securePassword: "",
   });
 
-  const [hoverRating, setHoverRating] = useState(0);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // extra UI states for image upload
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
 
-  // --- helpers ---
   const isPasswordCorrect = (val: string) => val === REQUIRED_PASSWORD;
 
-  // ImgBB upload function (blocked if password incorrect)
   const uploadImageToImgBB = async (file: File) => {
     if (!isPasswordCorrect(formData.securePassword)) {
       setErrors((prev) => ({
@@ -100,7 +83,7 @@ export default function ReviewsPage() {
 
       const imgData = await res.json();
       if (imgData?.success && imgData?.data?.url) {
-        handleChange("avatar", imgData.data.url); // set avatar URL
+        handleChange("image", imgData.data.url);
         toast.success("Image uploaded successfully!");
       } else {
         toast.error("Image upload failed!");
@@ -112,9 +95,7 @@ export default function ReviewsPage() {
     }
   };
 
-  // Generic field validator
-  const validateField = (field: keyof TReview, value: string | number) => {
-    // Custom realtime validation for password equality
+  const validateField = (field: keyof IArticle, value: string | number) => {
     if (field === "securePassword") {
       const msg =
         typeof value === "string" && value.length === 0
@@ -126,7 +107,9 @@ export default function ReviewsPage() {
       return;
     }
 
-    const singleFieldSchema = reviewSchema.pick({ [field]: true } as any);
+    const singleFieldSchema = articleValidationSchema.pick({
+      [field]: true,
+    } as any);
     const parsed = singleFieldSchema.safeParse({ [field]: value } as any);
     setErrors((prev) => ({
       ...prev,
@@ -134,18 +117,15 @@ export default function ReviewsPage() {
     }));
   };
 
-  // Handle input change with validation
-  const handleChange = (field: keyof TReview, value: string | number) => {
+  const handleChange = (field: keyof IArticle, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     validateField(field, value);
   };
 
-  // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Block submit if password wrong (extra safety)
     if (!isPasswordCorrect(formData.securePassword)) {
       setErrors((prev) => ({
         ...prev,
@@ -156,7 +136,7 @@ export default function ReviewsPage() {
       return;
     }
 
-    const parsed = reviewSchema.safeParse(formData);
+    const parsed = articleValidationSchema.safeParse(formData);
 
     if (!parsed.success) {
       const newErrors: Record<string, string> = {};
@@ -172,21 +152,21 @@ export default function ReviewsPage() {
     }
 
     try {
-      const result = await createReview(parsed.data);
+      const result = await createArticle(parsed.data);
       if (result.success) {
         toast.success("Review submitted successfully!");
         setFormData({
           title: "",
-          name: "",
-          role: "",
-          avatar: "",
+          author: "",
+          readTime: "",
+          image: "",
           description: "",
-          rating: 5,
+          category: "",
           securePassword: "",
         });
         setSelectedFileName("");
         setErrors({});
-        router.push("/admin/review/customer-review");
+        router.push("/admin/review/manage-article");
       } else {
         toast.error(result.message || "Failed to submit review");
       }
@@ -198,43 +178,15 @@ export default function ReviewsPage() {
   };
 
   const isFormValid =
-    formData.title.length >= 3 &&
-    formData.name.length >= 2 &&
-    formData.description.length >= 5 &&
-    formData.rating >= 1 &&
+    formData.title.length >= 1 &&
+    formData.author.length >= 1 &&
+    formData.category.length >= 1 &&
+    formData.description.length >= 1 &&
+    formData.readTime.length >= 1 &&
+    formData.image.length >= 1 &&
     formData.securePassword.length > 0 &&
     isPasswordCorrect(formData.securePassword) &&
     Object.values(errors).every((err) => !err);
-
-  const renderStars = () => {
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            className="transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 rounded"
-            onMouseEnter={() => setHoverRating(star)}
-            onMouseLeave={() => setHoverRating(0)}
-            onClick={() => {
-              handleChange("rating", star);
-            }}
-          >
-            <Star
-              className={`w-8 h-8 transition-colors duration-200 ${
-                star <= (hoverRating || formData.rating)
-                  ? "text-orange-400 fill-orange-400"
-                  : "text-gray-300 hover:text-orange-200"
-              }`}
-            />
-          </button>
-        ))}
-        <span className="ml-3 text-sm font-medium text-orange-600">
-          {formData.rating} out of 5 stars
-        </span>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
@@ -248,6 +200,7 @@ export default function ReviewsPage() {
           ]}
         />
       </div>
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-orange-400 to-amber-500 rounded-full mb-6 shadow-lg">
@@ -276,48 +229,56 @@ export default function ReviewsPage() {
 
           <CardContent className="px-8 pb-8">
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Personal Information */}
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Name */}
+                  {/* Title */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">
-                      Full Name *
+                      Title *
                     </label>
                     <Input
-                      value={formData.name}
-                      onChange={(e) => handleChange("name", e.target.value)}
-                      placeholder="Enter your full name"
+                      value={formData.title}
+                      onChange={(e) => handleChange("title", e.target.value)}
+                      placeholder="Enter title"
                       className={
-                        errors.name ? "border-red-300" : "border-gray-200"
+                        errors.title ? "border-red-300" : "border-gray-200"
                       }
                     />
-                    {errors.name && (
+                    {errors.title && (
                       <div className="flex items-center gap-1 text-red-600 text-sm">
                         <AlertCircle className="w-4 h-4" />
-                        {errors.name}
+                        {errors.title}
                       </div>
                     )}
                   </div>
-                  {/* Role */}
+
+                  {/* Author */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">
-                      Role / Profession
+                      Author Name *
                     </label>
                     <Input
-                      value={formData.role}
-                      onChange={(e) => handleChange("role", e.target.value)}
-                      placeholder="e.g., Software Engineer, Teacher"
+                      value={formData.author}
+                      onChange={(e) => handleChange("author", e.target.value)}
+                      placeholder="e.g., John Doe"
+                      className={
+                        errors.author ? "border-red-300" : "border-gray-200"
+                      }
                     />
+                    {errors.author && (
+                      <div className="flex items-center gap-1 text-red-600 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.author}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Avatar (File only) */}
+                {/* Image upload */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Avatar (Image file) *
+                    Image (File) *
                   </label>
-
                   <div
                     className={`relative flex items-center justify-between gap-3 rounded-xl border-2 ${
                       isPasswordCorrect(formData.securePassword)
@@ -362,51 +323,54 @@ export default function ReviewsPage() {
                       />
                     </label>
                   </div>
-
-                  {errors.avatar && (
+                  {errors.image && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
-                      {errors.avatar}
+                      {errors.image}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Review Content */}
               <div className="space-y-6">
-                {/* Title */}
+                {/* Category */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Review Title *
+                    Category *
                   </label>
                   <Input
-                    value={formData.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                    placeholder="Summarize your experience"
+                    value={formData.category}
+                    onChange={(e) => handleChange("category", e.target.value)}
+                    placeholder="Enter category"
                     className={
-                      errors.title ? "border-red-300" : "border-gray-200"
+                      errors.category ? "border-red-300" : "border-gray-200"
                     }
                   />
-                  {errors.title && (
+                  {errors.category && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
-                      {errors.title}
+                      {errors.category}
                     </div>
                   )}
                 </div>
 
-                {/* Rating */}
+                {/* Read Time */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Your Rating *
+                    Read Time *
                   </label>
-                  <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">
-                    {renderStars()}
-                  </div>
-                  {errors.rating && (
+                  <Input
+                    value={formData.readTime}
+                    onChange={(e) => handleChange("readTime", e.target.value)}
+                    placeholder="e.g., 5 min"
+                    className={
+                      errors.readTime ? "border-red-300" : "border-gray-200"
+                    }
+                  />
+                  {errors.readTime && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
-                      {errors.rating}
+                      {errors.readTime}
                     </div>
                   )}
                 </div>
@@ -414,7 +378,7 @@ export default function ReviewsPage() {
                 {/* Description */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Detailed Review *
+                    Detailed Article *
                   </label>
                   <Textarea
                     value={formData.description}
@@ -434,7 +398,7 @@ export default function ReviewsPage() {
                   )}
                 </div>
 
-                {/* Password */}
+                {/* Secure Password */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
                     Secure Password *
@@ -455,7 +419,7 @@ export default function ReviewsPage() {
                   <p className="text-xs text-gray-500">
                     Hint :{" "}
                     <code className="px-1 py-0.5 bg-gray-100 rounded">
-                      mS123
+                      {REQUIRED_PASSWORD}
                     </code>
                   </p>
                   {errors.securePassword && (
@@ -467,7 +431,6 @@ export default function ReviewsPage() {
                 </div>
               </div>
 
-              {/* Submit */}
               <div className="flex justify-center">
                 <Button
                   type="submit"
@@ -480,12 +443,12 @@ export default function ReviewsPage() {
             </form>
 
             <p className="text-sm text-center mt-10 text-slate-600 dark:text-slate-300 ">
-              Want to manage all reviews?{" "}
+              Want to manage all articles?{" "}
               <a
-                href="/admin/review/customer-review"
+                href="/admin/article/manage-article"
                 className="text-blue-600 hover:underline"
               >
-                Go to Review Management
+                Go to Article Management
               </a>
             </p>
           </CardContent>
