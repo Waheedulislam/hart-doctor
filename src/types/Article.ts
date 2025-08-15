@@ -6,6 +6,5 @@ export interface IArticle {
   category: string;
   description: string;
   readTime: string;
-
   securePassword: string;
 }

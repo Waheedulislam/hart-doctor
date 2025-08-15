@@ -6,6 +6,7 @@ import { Card, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { IArticle } from "@/types/Article";
 import Image from "next/image";
 import { getAllArticle } from "@/services/Article";
+import Link from "next/link";
 
 const BlogPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([]);
@@ -56,7 +57,8 @@ const BlogPage = () => {
             {articles.map((article) => (
               <Card
                 key={article._id}
-                className="group relative overflow-hidden rounded-3xl bg-white dark:bg-neutral-800 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+                className="group relative overflow-hidden rounded-3xl bg-white dark:bg-neutral-800 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer  border border-transparent hover:border-teal-400
+                        hover:-translate-y-1"
               >
                 {/* Card Header with Image */}
                 <div className="relative w-full h-56 -mt-10 overflow-hidden rounded-t-3xl">
@@ -85,15 +87,14 @@ const BlogPage = () => {
                     <span>Author : {article.author}</span>
                     <span>Read Time : {article.readTime} min</span>
                   </div>
-
-                  <a
-                    href="/"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    key={article._id}
+                    href={`/article/${article._id}`}
                     className="mt-2 w-full text-center inline-block px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors"
                   >
+                    {" "}
                     View Details
-                  </a>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}

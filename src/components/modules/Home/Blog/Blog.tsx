@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Clock,
-  ChevronRight,
-  CalendarDays,
-  UserRound,
-  TimerOffIcon,
-} from "lucide-react";
+import { ChevronRight, UserRound, TimerOffIcon } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {
   Navigation,
@@ -86,7 +80,7 @@ export function BlogCard({ post }: { post: IArticle }) {
           variant="ghost"
           className="group/button ml-auto gap-1 bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent"
         >
-          <Link href="/">
+          <Link key={post._id} href={`/article/${post._id}`}>
             Read more
             <ChevronRight className="h-4 w-4 transition-transform group-hover/button:translate-x-0.5" />
           </Link>
@@ -124,7 +118,13 @@ export default function BlogSection({
     fetchArticles();
   }, []);
 
-  if (loading) return <p className="text-center py-12">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
   if (!articles.length)
     return <p className="text-center py-12">No articles found.</p>;
 

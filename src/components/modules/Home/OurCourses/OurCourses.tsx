@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -8,9 +9,45 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { courses } from "@/data/CoursesData";
+import { getAllCourses } from "@/services/Courses";
+import { useEffect, useState } from "react";
+import { ICourses } from "@/types/Courses";
+import Link from "next/link";
 
 export default function OurCourses() {
+  const [courses, setCourses] = useState<ICourses[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  console.log(courses);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const data = await getAllCourses();
+        setCourses(data?.data?.result || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <p className="text-red-600 font-semibold text-lg">{error}</p>
+      </div>
+    );
+  }
   return (
     <section className="max-w-6xl mx-auto px-6 py-16">
       <h1 className="text-6xl font-medium bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent mb-12 text-center">
@@ -39,14 +76,15 @@ export default function OurCourses() {
               </p>
               <p className="text-gray-700 mt-2">৳ {course.price}</p>
             </CardContent>
-            <CardFooter>
+
+            <Link key={course._id} href={`/courses/${course._id}`}>
               <Button
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white px-6 py-3 rounded-md font-semibold transition self-start
-             hover:from-emerald-700 hover:to-teal-600"
+                className="w-[calc(100%-2rem)] mx-4 mt-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold py-3 rounded-xl 
+               transition-transform transform hover:scale-105 hover:from-emerald-700 hover:to-teal-600"
               >
                 DETAILS
               </Button>
-            </CardFooter>
+            </Link>
           </Card>
         ))}
       </div>

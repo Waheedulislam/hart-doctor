@@ -1,9 +1,9 @@
 export interface ICourses {
-  _id: string;
-  name: string;
+  _id?: string;
+  title: string;
+  duration: string;
+  price: number;
   image: string;
-  country: string;
   description: string;
-  countryImage: string;
-  review: string;
+  securePassword: string;
 }

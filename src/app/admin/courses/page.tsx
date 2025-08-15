@@ -16,10 +16,11 @@ import {
 } from "@/components/ui/card";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import * as z from "zod";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
-import { createArticle } from "@/services/Article";
-import { articleValidationSchema } from "@/components/validationSchema/articleValidationSchema copy";
-import { IArticle } from "@/types/Article";
+import { courseValidationSchema } from "@/components/validationSchema/courseValidationSchema";
+import { createCourse } from "@/services/Courses";
+import { ICourses } from "@/types/Courses";
 
 // Password for admin image uploads
 const REQUIRED_PASSWORD = "mySecret123";
@@ -27,13 +28,12 @@ const REQUIRED_PASSWORD = "mySecret123";
 export default function ReviewsPage() {
   const router = useRouter();
 
-  const [formData, setFormData] = useState<IArticle>({
+  const [formData, setFormData] = useState<ICourses>({
     title: "",
-    author: "",
+    duration: "",
     image: "",
-    category: "",
+    price: 0,
     description: "",
-    readTime: "",
     securePassword: "",
   });
 
@@ -84,7 +84,7 @@ export default function ReviewsPage() {
     }
   };
 
-  const validateField = (field: keyof IArticle, value: string | number) => {
+  const validateField = (field: keyof ICourses, value: string | number) => {
     if (field === "securePassword") {
       const msg =
         typeof value === "string" && value.length === 0
@@ -96,7 +96,7 @@ export default function ReviewsPage() {
       return;
     }
 
-    const singleFieldSchema = articleValidationSchema.pick({
+    const singleFieldSchema = courseValidationSchema.pick({
       [field]: true,
     } as any);
     const parsed = singleFieldSchema.safeParse({ [field]: value } as any);
@@ -106,7 +106,7 @@ export default function ReviewsPage() {
     }));
   };
 
-  const handleChange = (field: keyof IArticle, value: string | number) => {
+  const handleChange = (field: keyof ICourses, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     validateField(field, value);
   };
@@ -125,11 +125,11 @@ export default function ReviewsPage() {
       return;
     }
 
-    const parsed = articleValidationSchema.safeParse(formData);
+    const parsed = courseValidationSchema.safeParse(formData);
 
     if (!parsed.success) {
       const newErrors: Record<string, string> = {};
-      parsed.error.issues.forEach((issue: any) => {
+      parsed.error.issues.forEach((issue) => {
         toast.error(issue.message);
         if (issue.path[0]) {
           newErrors[issue.path[0] as string] = issue.message;
@@ -141,23 +141,22 @@ export default function ReviewsPage() {
     }
 
     try {
-      const result = await createArticle(parsed.data);
+      const result = await createCourse(parsed.data);
       if (result.success) {
-        toast.success("Review submitted successfully!");
+        toast.success("Course submitted successfully!");
         setFormData({
           title: "",
-          author: "",
-          readTime: "",
+          duration: "",
           image: "",
+          price: 0,
           description: "",
-          category: "",
           securePassword: "",
         });
         setSelectedFileName("");
         setErrors({});
-        router.push("/admin/article/manage-article");
+        router.push("/admin/courses/manage-course");
       } else {
-        toast.error(result.message || "Failed to submit review");
+        toast.error(result.message || "Failed to submit course");
       }
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
@@ -168,15 +167,13 @@ export default function ReviewsPage() {
 
   const isFormValid =
     formData.title.length >= 1 &&
-    formData.author.length >= 1 &&
-    formData.category.length >= 1 &&
+    formData.duration.length >= 1 &&
+    formData.price.toString().length >= 1 &&
     formData.description.length >= 1 &&
-    formData.readTime.length >= 1 &&
     formData.image.length >= 1 &&
     formData.securePassword.length > 0 &&
     isPasswordCorrect(formData.securePassword) &&
     Object.values(errors).every((err) => !err);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
       <div className="mb-12">
@@ -196,11 +193,11 @@ export default function ReviewsPage() {
             <MessageSquare className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Our Latest <span className="text-orange-500">Articles</span>
+            Explore Our <span className="text-orange-500">Courses</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Stay updated with our latest insights, stories, and tips from our
-            blog. Explore articles curated just for you.
+            Unlock new skills and knowledge with our curated courses. Learn at
+            your own pace and enhance your expertise across multiple domains.
           </p>
         </div>
 
@@ -209,10 +206,10 @@ export default function ReviewsPage() {
 
           <CardHeader className="text-center pb-8 pt-8">
             <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
-              Tell Us About Your Experience
+              Discover Our Courses
             </CardTitle>
             <CardDescription className="text-gray-600 text-lg">
-              Your feedback helps us improve our services
+              Learn new skills and grow with our curated courses.
             </CardDescription>
           </CardHeader>
 
@@ -244,20 +241,20 @@ export default function ReviewsPage() {
                   {/* Author */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">
-                      Author Name *
+                      duration *
                     </label>
                     <Input
-                      value={formData.author}
-                      onChange={(e) => handleChange("author", e.target.value)}
+                      value={formData.duration}
+                      onChange={(e) => handleChange("duration", e.target.value)}
                       placeholder="e.g., John Doe"
                       className={
-                        errors.author ? "border-red-300" : "border-gray-200"
+                        errors.duration ? "border-red-300" : "border-gray-200"
                       }
                     />
-                    {errors.author && (
+                    {errors.duration && (
                       <div className="flex items-center gap-1 text-red-600 text-sm">
                         <AlertCircle className="w-4 h-4" />
-                        {errors.author}
+                        {errors.duration}
                       </div>
                     )}
                   </div>
@@ -325,41 +322,23 @@ export default function ReviewsPage() {
                 {/* Category */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Category *
+                    price *
                   </label>
                   <Input
-                    value={formData.category}
-                    onChange={(e) => handleChange("category", e.target.value)}
-                    placeholder="Enter category"
+                    value={formData.price}
+                    onChange={(e) =>
+                      handleChange("price", Number(e.target.value))
+                    }
+                    placeholder="Enter price"
                     className={
-                      errors.category ? "border-red-300" : "border-gray-200"
+                      errors.price ? "border-red-300" : "border-gray-200"
                     }
                   />
-                  {errors.category && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.category}
-                    </div>
-                  )}
-                </div>
 
-                {/* Read Time */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">
-                    Read Time *
-                  </label>
-                  <Input
-                    value={formData.readTime}
-                    onChange={(e) => handleChange("readTime", e.target.value)}
-                    placeholder="e.g., 5 min"
-                    className={
-                      errors.readTime ? "border-red-300" : "border-gray-200"
-                    }
-                  />
-                  {errors.readTime && (
+                  {errors.price && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
-                      {errors.readTime}
+                      {errors.price}
                     </div>
                   )}
                 </div>
@@ -432,7 +411,7 @@ export default function ReviewsPage() {
             <p className="text-sm text-center mt-10 text-slate-600 dark:text-slate-300 ">
               Want to manage all articles?{" "}
               <a
-                href="/admin/article/manage-article"
+                href="/admin/courses/manage-course"
                 className="text-blue-600 hover:underline"
               >
                 Go to Article Management

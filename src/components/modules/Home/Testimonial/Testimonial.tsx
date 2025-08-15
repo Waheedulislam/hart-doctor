@@ -40,7 +40,13 @@ export default function Testimonials() {
     fetchReviews();
   }, []);
 
-  if (loading) return <p className="text-center">Loading reviews...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
   if (error) return <p className="text-center text-red-600">Error: {error}</p>;
   if (reviews.length === 0)
     return <p className="text-center">No reviews found.</p>;
