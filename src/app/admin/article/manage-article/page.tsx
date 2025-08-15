@@ -8,7 +8,7 @@ import { Star } from "lucide-react";
 import EnhancedReviewCard from "./ArticleCard";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
 import { getAllArticle } from "@/services/Article";
-import { IArticle } from "../page";
+import { IArticle } from "@/types/Article";
 
 export default function ReviewsSection() {
   const [articles, setArticles] = useState<IArticle[]>([]);
