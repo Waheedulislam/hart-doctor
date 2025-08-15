@@ -4,11 +4,10 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
-
-import EnhancedReviewCard from "./ArticleCard";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
 import { getAllArticle } from "@/services/Article";
 import { IArticle } from "@/types/Article";
+import EnhancedArticleCard from "./ArticleCard";
 
 export default function ReviewsSection() {
   const [articles, setArticles] = useState<IArticle[]>([]);
@@ -91,7 +90,7 @@ export default function ReviewsSection() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {articles.map((article, index) => (
-              <EnhancedReviewCard
+              <EnhancedArticleCard
                 key={article._id ?? `${article.title}-${index}`}
                 article={article}
                 onDelete={handleDeleteFromUI}
