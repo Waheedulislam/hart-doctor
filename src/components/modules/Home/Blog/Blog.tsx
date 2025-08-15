@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, ChevronRight, CalendarDays, UserRound } from "lucide-react";
+import {
+  Clock,
+  ChevronRight,
+  CalendarDays,
+  UserRound,
+  TimerOffIcon,
+} from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {
   Navigation,
@@ -36,7 +42,7 @@ export function BlogCard({ post }: { post: IArticle }) {
   return (
     <Card className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-neutral-200 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 dark:bg-neutral-900 dark:ring-neutral-800 rounded-3xl">
       {/* Image */}
-      <div className="relative w-full h-56 overflow-hidden rounded-t-3xl">
+      <div className="relative w-full h-56 -mt-10 overflow-hidden rounded-t-3xl">
         <Image
           src={post.image || "/placeholder.svg"}
           alt={`Article image for ${post.title}`}
@@ -50,20 +56,7 @@ export function BlogCard({ post }: { post: IArticle }) {
             #{post.category}
           </Badge>
         </div>
-        <div className="absolute bottom-3 left-3 flex items-center gap-4 text-xs text-white">
-          <span className="flex items-center gap-1">
-            <CalendarDays className="h-3.5 w-3.5" />
-            {new Date(post.date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />
-            {post.readTime}
-          </span>
-        </div>
+        {/* Content */}
       </div>
 
       {/* Content */}
@@ -72,14 +65,18 @@ export function BlogCard({ post }: { post: IArticle }) {
           {post.title}
         </CardTitle>
         <CardDescription className="line-clamp-2 text-sm">
-          {post.excerpt}
+          {post.description}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="px-5 pt-0">
         <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
           <UserRound className="h-4 w-4" />
-          <span>{post.author}</span>
+          <span>Author : {post.author}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+          <TimerOffIcon className="h-4 w-4" />
+          <span>Read Time : {post.readTime} min</span>
         </div>
       </CardContent>
 
@@ -89,7 +86,7 @@ export function BlogCard({ post }: { post: IArticle }) {
           variant="ghost"
           className="group/button ml-auto gap-1 bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent"
         >
-          <Link href={post.href}>
+          <Link href="/">
             Read more
             <ChevronRight className="h-4 w-4 transition-transform group-hover/button:translate-x-0.5" />
           </Link>
@@ -150,7 +147,7 @@ export default function BlogSection({
             variant="outline"
             className="hidden sm:inline-flex bg-transparent hover:text-white hover:bg-emerald-600"
           >
-            <Link href={ctaHref}>View all posts</Link>
+            <Link href="/article">View all posts</Link>
           </Button>
         </header>
 

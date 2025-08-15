@@ -10,7 +10,7 @@ import { getAllArticle } from "@/services/Article";
 const BlogPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  console.log(articles);
+
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -31,7 +31,7 @@ const BlogPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
       {/* Page Header */}
       <div className="mb-20">
         <NMPageHeader
@@ -40,49 +40,57 @@ const BlogPage = () => {
           breadcrumb={[{ label: "Home", href: "/" }, { label: "Our Blog" }]}
         />
       </div>
+
       <div className="px-6 md:px-20">
         {/* Articles Section */}
         {loading ? (
-          <p className="text-center col-span-3">Loading...</p>
+          <p className="text-center py-12 text-gray-500 dark:text-gray-300">
+            Loading...
+          </p>
+        ) : articles.length === 0 ? (
+          <p className="text-center py-12 text-gray-500 dark:text-gray-300">
+            No articles found.
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {articles.map((article) => (
               <Card
                 key={article._id}
-                className="transition-transform duration-300 hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-teal-500 cursor-pointer rounded-3xl overflow-hidden"
+                className="group relative overflow-hidden rounded-3xl bg-white dark:bg-neutral-800 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
               >
                 {/* Card Header with Image */}
-                <div className="relative w-full h-56 overflow-hidden rounded-t-3xl -mt-7">
+                <div className="relative w-full h-56 -mt-10 overflow-hidden rounded-t-3xl">
                   <Image
-                    src={article.image}
+                    src={article.image || "/placeholder.svg"}
                     alt={article.title}
                     fill
-                    className="object-cover rounded-t-3xl"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105 rounded-t-3xl"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
                 </div>
 
                 {/* Card Content */}
-                <CardContent className="pt-4">
-                  <CardTitle className="text-xl font-semibold text-gray-800">
+                <CardContent className="pt-4 px-5">
+                  <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100 line-clamp-2">
                     {article.title}
                   </CardTitle>
-                  <p className="text-gray-600 mt-2 line-clamp-3">
-                    {article.excerpt}
+                  <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm line-clamp-3">
+                    {article.description}
                   </p>
                 </CardContent>
 
                 {/* Card Footer */}
-                <CardFooter className="flex flex-col gap-2 pt-2">
-                  <div className="flex justify-between text-gray-500 text-sm font-medium">
-                    <span>{article.author}</span>
-                    <span>{new Date(article.date).toLocaleDateString()}</span>
-                    <span>{article.readTime} read</span>
+                <CardFooter className="flex flex-col gap-3 pt-4 px-5 pb-5">
+                  <div className="flex flex-col text-gray-500 dark:text-gray-400 text-sm font-medium gap-1">
+                    <span>Author : {article.author}</span>
+                    <span>Read Time : {article.readTime} min</span>
                   </div>
+
                   <a
-                    href={article.href}
+                    href="/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-2 px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium text-center hover:bg-teal-600 transition-colors"
+                    className="mt-2 w-full text-center inline-block px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors"
                   >
                     View Details
                   </a>

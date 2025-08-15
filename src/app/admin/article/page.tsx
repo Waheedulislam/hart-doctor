@@ -166,7 +166,7 @@ export default function ReviewsPage() {
         });
         setSelectedFileName("");
         setErrors({});
-        router.push("/admin/review/manage-article");
+        router.push("/admin/article/manage-article");
       } else {
         toast.error(result.message || "Failed to submit review");
       }
