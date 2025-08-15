@@ -14,14 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Star,
-  User,
-  Briefcase,
-  MessageSquare,
-  Shield,
-  AlertCircle,
-} from "lucide-react";
+import { Star, MessageSquare, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
@@ -50,6 +43,9 @@ const reviewSchema = z.object({
   securePassword: z.string().min(1, "Secure password is required"),
 });
 
+// hardcoded password
+const REQUIRED_PASSWORD = "mySecret123";
+
 export default function ReviewsPage() {
   const router = useRouter();
 
@@ -68,10 +64,70 @@ export default function ReviewsPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // extra UI states for image upload
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
+
+  // --- helpers ---
+  const isPasswordCorrect = (val: string) => val === REQUIRED_PASSWORD;
+
+  // ImgBB upload function (blocked if password incorrect)
+  const uploadImageToImgBB = async (file: File) => {
+    if (!isPasswordCorrect(formData.securePassword)) {
+      setErrors((prev) => ({
+        ...prev,
+        securePassword:
+          "Incorrect password. Please enter the correct password to upload.",
+      }));
+      toast.error("Password incorrect. Image upload blocked.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setSelectedFileName(file.name);
+
+      const imgForm = new FormData();
+      imgForm.append("image", file);
+
+      const res = await fetch(
+        `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+        {
+          method: "POST",
+          body: imgForm,
+        }
+      );
+
+      const imgData = await res.json();
+      if (imgData?.success && imgData?.data?.url) {
+        handleChange("avatar", imgData.data.url); // set avatar URL
+        toast.success("Image uploaded successfully!");
+      } else {
+        toast.error("Image upload failed!");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Image upload error");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Generic field validator
   const validateField = (field: keyof TReview, value: string | number) => {
-    const singleFieldSchema = reviewSchema.pick({ [field]: true });
-    const parsed = singleFieldSchema.safeParse({ [field]: value });
+    // Custom realtime validation for password equality
+    if (field === "securePassword") {
+      const msg =
+        typeof value === "string" && value.length === 0
+          ? "Secure password is required"
+          : typeof value === "string" && !isPasswordCorrect(value)
+          ? "Incorrect password"
+          : "";
+      setErrors((prev) => ({ ...prev, securePassword: msg }));
+      return;
+    }
+
+    const singleFieldSchema = reviewSchema.pick({ [field]: true } as any);
+    const parsed = singleFieldSchema.safeParse({ [field]: value } as any);
     setErrors((prev) => ({
       ...prev,
       [field]: parsed.success ? "" : parsed.error.issues[0].message,
@@ -88,6 +144,17 @@ export default function ReviewsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Block submit if password wrong (extra safety)
+    if (!isPasswordCorrect(formData.securePassword)) {
+      setErrors((prev) => ({
+        ...prev,
+        securePassword: "Incorrect password",
+      }));
+      toast.error("Incorrect password");
+      setIsSubmitting(false);
+      return;
+    }
 
     const parsed = reviewSchema.safeParse(formData);
 
@@ -117,6 +184,7 @@ export default function ReviewsPage() {
           rating: 5,
           securePassword: "",
         });
+        setSelectedFileName("");
         setErrors({});
         router.push("/admin/review/customer-review");
       } else {
@@ -135,6 +203,7 @@ export default function ReviewsPage() {
     formData.description.length >= 5 &&
     formData.rating >= 1 &&
     formData.securePassword.length > 0 &&
+    isPasswordCorrect(formData.securePassword) &&
     Object.values(errors).every((err) => !err);
 
   const renderStars = () => {
@@ -242,19 +311,58 @@ export default function ReviewsPage() {
                     />
                   </div>
                 </div>
-                {/* Avatar */}
+
+                {/* Avatar (File only) */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Avatar URL (Optional)
+                    Avatar (Image file) *
                   </label>
-                  <Input
-                    value={formData.avatar}
-                    onChange={(e) => handleChange("avatar", e.target.value)}
-                    placeholder="https://example.com/your-photo.jpg"
-                    className={
-                      errors.avatar ? "border-red-300" : "border-gray-200"
-                    }
-                  />
+
+                  <div
+                    className={`relative flex items-center justify-between gap-3 rounded-xl border-2 ${
+                      isPasswordCorrect(formData.securePassword)
+                        ? "border-dashed border-orange-300 bg-orange-50"
+                        : "border-dashed border-gray-300 bg-gray-50 opacity-80"
+                    } p-4`}
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-800">
+                        {selectedFileName
+                          ? selectedFileName
+                          : "Choose an image to upload"}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        JPG, PNG, GIF up to ~5MB
+                      </span>
+                      {!isPasswordCorrect(formData.securePassword) && (
+                        <span className="mt-1 text-xs text-red-600">
+                          Enter the correct password to enable uploads.
+                        </span>
+                      )}
+                    </div>
+
+                    <label className="inline-flex">
+                      <span className="px-4 py-2 text-sm rounded-lg bg-white border shadow-sm cursor-pointer hover:bg-gray-50">
+                        {isUploading ? "Uploading..." : "Browse"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={
+                          isUploading ||
+                          !isPasswordCorrect(formData.securePassword)
+                        }
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            uploadImageToImgBB(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
                   {errors.avatar && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
@@ -344,6 +452,12 @@ export default function ReviewsPage() {
                         : "border-gray-200"
                     }
                   />
+                  <p className="text-xs text-gray-500">
+                    Hint :{" "}
+                    <code className="px-1 py-0.5 bg-gray-100 rounded">
+                      mS123
+                    </code>
+                  </p>
                   {errors.securePassword && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
@@ -364,7 +478,7 @@ export default function ReviewsPage() {
                 </Button>
               </div>
             </form>
-            {/* ✅ Extra link under form */}
+
             <p className="text-sm text-center mt-10 text-slate-600 dark:text-slate-300 ">
               Want to manage all reviews?{" "}
               <a

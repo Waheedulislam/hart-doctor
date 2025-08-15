@@ -6,4 +6,5 @@ export type TReview = {
   avatar?: string;
   description: string;
   rating: number;
+  securePassword: string;
 };
