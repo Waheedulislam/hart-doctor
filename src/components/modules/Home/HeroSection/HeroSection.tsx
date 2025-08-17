@@ -95,7 +95,7 @@ export default function HeroSection() {
         </p>
         <div className="flex gap-4">
           <Link href="/courses">
-            <Button size="lg" variant="default">
+            <Button size="lg" variant="default" className="cursor-pointer">
               Get Started
             </Button>
           </Link>
@@ -103,7 +103,7 @@ export default function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="text-black border-white"
+              className="text-black border-white cursor-pointer"
             >
               Learn More
             </Button>
