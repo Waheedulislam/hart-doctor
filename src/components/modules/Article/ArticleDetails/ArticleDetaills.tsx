@@ -93,8 +93,8 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
               skill, it’s a responsibility.
             </blockquote>
             <br /> <hr />
-            <h3 className="text-2xl font-bold text-gray-900">
-              <span>Description</span>
+            <h3 className="text-3xl font-bold text-gray-900">
+              <span>Description :</span>
             </h3>
             <ul className="space-y-3">
               {article.description
