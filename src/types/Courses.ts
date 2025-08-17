@@ -5,5 +5,6 @@ export interface ICourses {
   price: number;
   image: string;
   description: string;
+  learnDescription: string;
   securePassword: string;
 }

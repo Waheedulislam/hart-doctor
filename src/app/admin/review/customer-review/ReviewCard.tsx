@@ -8,6 +8,7 @@ import { Trash2, User, Briefcase, Star, Quote } from "lucide-react";
 import Swal from "sweetalert2";
 import type { TReview } from "@/types/Review";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface ReviewCardProps {
   review: TReview;
@@ -150,7 +151,17 @@ export default function EnhancedReviewCard({
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg">
-                  <User className="w-4 h-4 text-white" />
+                  {review?.avatar ? (
+                    <Image
+                      height="20"
+                      width="20"
+                      src={review.avatar}
+                      alt={review.name}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-white" />
+                  )}
                 </div>
                 <span className="font-semibold">{review.name}</span>
               </div>

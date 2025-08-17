@@ -173,7 +173,9 @@ export default function EnhancedCourseCard({
 
         {/* Description */}
         <p className="text-slate-700 dark:text-slate-300 text-base leading-relaxed mt-2">
-          {course.description}
+          {course.description.length > 100
+            ? course.description.slice(0, 100) + "..."
+            : course.description}
         </p>
 
         {/* Duration & Price */}

@@ -35,6 +35,7 @@ export default function ReviewsPage() {
     price: 0,
     description: "",
     securePassword: "",
+    learnDescription: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -151,6 +152,7 @@ export default function ReviewsPage() {
           price: 0,
           description: "",
           securePassword: "",
+          learnDescription: "",
         });
         setSelectedFileName("");
         setErrors({});
@@ -346,14 +348,36 @@ export default function ReviewsPage() {
                 {/* Description */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700">
-                    Detailed Article *
+                    Description *
                   </label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) =>
                       handleChange("description", e.target.value)
                     }
-                    placeholder="Tell us more about your experience"
+                    placeholder="Tell us more about this course"
+                    className={
+                      errors.description ? "border-red-300" : "border-gray-200"
+                    }
+                  />
+                  {errors.description && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.description}
+                    </div>
+                  )}
+                </div>
+                {/* What Will Learn in This Course */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">
+                    What Will Learn for Patients *
+                  </label>
+                  <Textarea
+                    value={formData.learnDescription}
+                    onChange={(e) =>
+                      handleChange("learnDescription", e.target.value)
+                    }
+                    placeholder="Tell us more about what patients will learn from this course"
                     className={
                       errors.description ? "border-red-300" : "border-gray-200"
                     }

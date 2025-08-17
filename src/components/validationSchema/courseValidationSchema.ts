@@ -7,5 +7,6 @@ export const courseValidationSchema = z.object({
   price: z.number().min(0, "Price must be at least 0"),
   image: z.string().min(1, "Image URL is required"),
   description: z.string().min(1, "Description is required"),
+  learnDescription: z.string().min(1, "Detail Description is required"),
   securePassword: z.string().min(1, "Password is required"),
 });

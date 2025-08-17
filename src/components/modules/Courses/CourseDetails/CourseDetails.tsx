@@ -14,7 +14,8 @@ interface Course {
   duration: string;
   createdAt: string;
   updatedAt: string;
-  description?: string;
+  description: string;
+  learnDescription: string;
 }
 
 interface CourseDetailsProps {
@@ -22,6 +23,7 @@ interface CourseDetailsProps {
 }
 
 export default function CourseDetails({ course }: CourseDetailsProps) {
+  console.log(course);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mb-20">
@@ -41,10 +43,10 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
           <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-transform transform hover:scale-105">
             <Image
               src={
-                course.image ||
+                course?.image ||
                 "/placeholder.svg?height=400&width=800&query=course"
               }
-              alt={course.title}
+              alt={course?.title}
               width={800}
               height={400}
               className="object-cover w-full h-64 md:h-96"
@@ -57,19 +59,14 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
               What You&lsquo;ll Learn
             </h2>
             <div className="space-y-3">
-              {[
-                "Hands-on CPR techniques for all ages",
-                "Automated External Defibrillator (AED) usage",
-                "Emergency response protocols",
-                "Cardiac arrest recognition",
-                "Choking response procedures",
-                "Team-based resuscitation",
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-teal-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{item}</span>
-                </div>
-              ))}
+              {course?.learnDescription.split(".").map((item, idx) =>
+                item.trim() ? (
+                  <div key={idx} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-teal-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">{item.trim()}</span>
+                  </div>
+                ) : null
+              )}
             </div>
           </section>
 
@@ -79,17 +76,7 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
               About This Course
             </h2>
             <div className="text-gray-700 space-y-4">
-              <p>
-                This comprehensive Basic Life Support (BLS) course is designed
-                for healthcare professionals, first responders, and anyone who
-                wants to be prepared to save lives in emergency situations.
-              </p>
-              <p>
-                You&lsquo;ll receive hands-on training with the latest CPR
-                techniques and gain the confidence to respond quickly in cardiac
-                emergency situations. Upon completion, you&#39;ll receive an
-                official BLS certification.
-              </p>
+              <p>{course?.description}</p>
             </div>
           </section>
         </div>
@@ -100,7 +87,7 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
             <div className="text-center mb-6">
               <div className="text-4xl font-bold text-teal-600 mb-2">
-                {course.price}{" "}
+                {course?.price}{" "}
                 <span className="text-lg font-normal text-gray-500">BDT</span>
               </div>
             </div>
@@ -111,7 +98,7 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
                   <span>Duration</span>
                 </div>
                 <span className="font-medium text-gray-900">
-                  {course.duration}
+                  {course?.duration}
                 </span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-gray-100">
@@ -120,7 +107,7 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
                   <span>Created</span>
                 </div>
                 <span className="font-medium text-gray-900">
-                  {new Date(course.createdAt).toLocaleDateString()}
+                  {new Date(course?.createdAt).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex items-center justify-between py-2">
