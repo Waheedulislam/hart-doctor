@@ -23,7 +23,7 @@ interface ArticleDetailsProps {
 export function ArticleDetails({ article }: ArticleDetailsProps) {
   console.log(article);
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-red-50 text-gray-900">
+    <div className="min-h-screen text-gray-900">
       {/* Navigation */}
       <div className="mb-20">
         <NMPageHeader
@@ -134,6 +134,7 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
               in emergencies. Communities with trained individuals see
               significantly higher survival rates in cardiac arrest cases.
             </p>
+            <br /> <hr />
             <h3 className="text-2xl font-bold text-gray-900">
               Key - <span className="text-teal-600">Highlights</span>
             </h3>

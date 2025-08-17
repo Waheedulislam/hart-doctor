@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 const slides = [
   {
@@ -93,16 +94,20 @@ export default function HeroSection() {
           voluptatibus delectus.
         </p>
         <div className="flex gap-4">
-          <Button size="lg" variant="default">
-            Get Started
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="text-black border-white"
-          >
-            Learn More
-          </Button>
+          <Link href="/courses">
+            <Button size="lg" variant="default">
+              Get Started
+            </Button>
+          </Link>
+          <Link href="/about">
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-black border-white"
+            >
+              Learn More
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
