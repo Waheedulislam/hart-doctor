@@ -94,7 +94,7 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
             </blockquote>
             <br /> <hr />
             <h3 className="text-2xl font-bold text-gray-900">
-              <span className="text-teal-600">Description</span>
+              <span>Description</span>
             </h3>
             <ul className="space-y-3">
               {article.description
