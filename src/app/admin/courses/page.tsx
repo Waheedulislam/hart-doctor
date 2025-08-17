@@ -438,7 +438,7 @@ export default function ReviewsPage() {
                 href="/admin/courses/manage-course"
                 className="text-blue-600 hover:underline"
               >
-                Go to Article Management
+                Go to courses Management
               </a>
             </p>
           </CardContent>
