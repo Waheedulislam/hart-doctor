@@ -3,14 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Heart,
-  MessageCircle,
-  UserPlus,
-} from "lucide-react";
+import { CheckCircle, Clock, Heart, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import { IArticle } from "@/types/Article";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
@@ -95,9 +88,6 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
 
           {/* Content */}
           <div className="prose prose-lg max-w-none text-gray-800 space-y-6">
-            <p className="text-lg text-gray-600 max-w-3xl">
-              {article.description}
-            </p>
             <blockquote className="border-l-4 border-red-500 pl-6 italic text-gray-700 bg-red-50/50 p-4 rounded-lg">
               Every second counts. Knowing CPR can save a life – it’s more than
               skill, it’s a responsibility.
@@ -108,50 +98,21 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
               <span className="text-teal-600">Extra Suggestions</span>
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-teal-500" />
-                Check responsiveness and call emergency services immediately.
-              </li>
-              <li className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                Open the airway and check for breathing.
-              </li>
-              <li className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-pink-500" />
-                Start chest compressions at a rate of 100–120 per minute.
-              </li>
-              <li className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-blue-500" />
-                Provide rescue breaths if trained and confident.
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-teal-500" />
-                Continue until help arrives or the person regains consciousness.
-              </li>
+              {article.description
+                ?.split(".")
+                .map((sentence) => sentence.trim())
+                .filter((sentence) => sentence.length > 0)
+                .map((sentence, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center gap-2 text-lg text-gray-600 max-w-3xl"
+                  >
+                    <CheckCircle className="w-5 h-5 text-teal-500 flex-shrink-0" />
+                    {sentence}.
+                  </li>
+                ))}
             </ul>
-            <p>
-              Regular CPR training ensures you are prepared to act confidently
-              in emergencies. Communities with trained individuals see
-              significantly higher survival rates in cardiac arrest cases.
-            </p>
             <br /> <hr />
-            <h3 className="text-2xl font-bold text-gray-900">
-              Key - <span className="text-teal-600">Highlights</span>
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-teal-500" />
-                CPR can double or triple a person’s chance of survival.
-              </li>
-              <li className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-pink-500" />
-                Hands-only CPR is effective for untrained bystanders.
-              </li>
-              <li className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                Early intervention is critical: call emergency services first.
-              </li>
-            </ul>
           </div>
 
           {/* Footer / Call-to-Action */}
