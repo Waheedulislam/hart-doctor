@@ -7,4 +7,7 @@ export interface ICourses {
   description: string;
   learnDescription: string;
   securePassword: string;
+  TrainingObjectives: string;
+  CourseContents: string;
+  WhoCanJoin: string;
 }

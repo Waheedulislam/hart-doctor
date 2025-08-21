@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, GraduationCap, Stethoscope, CalendarClock } from "lucide-react";
+import { Users, Stethoscope, CalendarClock } from "lucide-react";
 
 export default function AboutHighlights() {
   const years = new Date().getFullYear() - 2011;
@@ -9,13 +9,9 @@ export default function AboutHighlights() {
     {
       icon: CalendarClock,
       title: `${years}+ years`,
-      desc: "Continuous training since 2011",
+      desc: "Continuous training since 2015",
     },
-    {
-      icon: GraduationCap,
-      title: "AHA curriculum",
-      desc: "Standardized, evidence-based courses",
-    },
+
     {
       icon: Stethoscope,
       title: "Healthcare focused",
@@ -37,15 +33,15 @@ export default function AboutHighlights() {
         id="highlights"
         className="mb-6 text-2xl font-semibold tracking-tight"
       >
-        What sets IHD apart
+        What sets PAI apart
       </h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, i) => (
           <Card
             key={i}
             className="
               border-emerald-100
-              transition-transform transition-shadow duration-300 ease-in-out
+              transition-transform  duration-300 ease-in-out
               hover:shadow-lg hover:shadow-emerald-300/40 hover:scale-[1.03]
               cursor-pointer
             "

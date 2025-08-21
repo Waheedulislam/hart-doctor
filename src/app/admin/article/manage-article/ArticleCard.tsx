@@ -162,10 +162,10 @@ export default function EnhancedArticleCard({
       </CardHeader>
 
       <CardContent className="relative z-10 space-y-4">
-        <div className="relative">
+        <div className="relative group">
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
           <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-6 text-base">
-            {article.description}
+            {article.description.slice(0, 120)}...
           </p>
         </div>
 

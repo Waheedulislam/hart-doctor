@@ -14,7 +14,7 @@ export default function AboutUs() {
         {/* Image */}
         <div className="flex-shrink-0 w-full md:w-1/2 rounded-lg overflow-hidden shadow-lg">
           <Image
-            src="https://ihdbd.org/upload/about_page/1774768787986764.jpg"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSSvagjyQ0TGHmMmpqCDY6Q0KjYUO6Nqnbhw&s"
             alt="Institute of Healthcare Development"
             width={600}
             height={400}
@@ -24,24 +24,23 @@ export default function AboutUs() {
         </div>
 
         {/* Text Content */}
-        <div className="prose prose-lg text-gray-700 md:w-1/2 flex flex-col">
+        <div className="prose prose-lg text-gray-700 md:w-1/2 flex flex-col lg:mt-10">
           <p>
-            Institute of Healthcare Development (IHD) is the first affiliated
-            International Training Center (ITC) of the prestigious American
-            Heart Association (AHA), in Bangladesh, and have been providing the
-            following AHA courses for Physicians, Nurses and other Healthcare
-            Providers since April 2011:
+            Since May 2009, Prime Aid Institute has been a trusted and respected
+            name in healthcare training in Bangladesh. We proudly offer these
+            following specialized courses for physicians, nurses, and other
+            healthcare professionals :
           </p>
 
           <ul className="list-disc list-inside mt-6 space-y-2">
             <li>
-              <strong>ACLS (Advanced Cardiovascular Life Support)</strong>
+              <strong>Basic Life Support (BLS) Course</strong>
             </li>
             <li>
-              <strong>Emergency Cardiac Care (ECC)</strong>
+              <strong>First Aid Training Course</strong>
             </li>
             <li>
-              <strong>BLS (Basic Life Support - CPR Program)</strong>
+              <strong>Cardiopulmonary Resuscitation (CPR) Course</strong>
             </li>
           </ul>
 

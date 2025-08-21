@@ -10,11 +10,13 @@ export default function Footer() {
         {/* About Institute */}
         <div>
           <h2 className="text-2xl font-bold text-white mb-4">
-            Institute of Healthcare Development (IHD)
+            Prime Aid Institute
           </h2>
           <p className="text-sm leading-relaxed">
-            IHD is the first affiliated International Training Center (ITC) of
-            the prestigious American Heart Association (AHA), in Bangladesh.
+            Prime Aid Institute has been a trusted and respected name in
+            healthcare training in Bangladesh. We proudly offer these following
+            specialized courses for physicians, nurses, and other healthcare
+            professionals.
           </p>
         </div>
 
@@ -73,7 +75,7 @@ export default function Footer() {
             <li className="flex items-center gap-2">
               <Phone size={18} />{" "}
               <a href="tel:+880197212" className="hover:text-white">
-                +880 197212
+                +880 1951-163533
               </a>
             </li>
           </ul>

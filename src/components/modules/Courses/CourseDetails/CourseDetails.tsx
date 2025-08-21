@@ -16,6 +16,9 @@ interface Course {
   updatedAt: string;
   description: string;
   learnDescription: string;
+  TrainingObjectives: string;
+  CourseContents: string;
+  WhoCanJoin: string;
 }
 
 interface CourseDetailsProps {
@@ -52,31 +55,74 @@ export default function CourseDetails({ course }: CourseDetailsProps) {
               className="object-cover w-full h-64 md:h-96"
             />
           </div>
-
+          {/* About Course */}
+          <section className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Description :
+            </h2>
+            <div className="text-gray-700 space-y-4">
+              <p>{course?.description}</p>
+            </div>
+          </section>
           {/* What You'll Learn */}
           <section className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              What You&lsquo;ll Learn
+              Learning Description :
             </h2>
             <div className="space-y-3">
-              {course?.learnDescription.split(".").map((item, idx) =>
+              {course?.WhoCanJoin.split(".").map((item, idx) =>
                 item.trim() ? (
-                  <div key={idx} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-teal-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">{item.trim()}</span>
-                  </div>
+                  <li key={idx} className="leading-relaxed">
+                    {item.trim()}
+                  </li>
+                ) : null
+              )}
+            </div>
+          </section>
+          {/* Training Objectives */}
+          <section className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Training Objectives :
+            </h2>
+            <div className="space-y-3">
+              {course?.WhoCanJoin.split(".").map((item, idx) =>
+                item.trim() ? (
+                  <li key={idx} className="leading-relaxed">
+                    {item.trim()}
+                  </li>
                 ) : null
               )}
             </div>
           </section>
 
-          {/* About Course */}
+          {/* Course Contents */}
           <section className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              About This Course
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Course Contents :
             </h2>
-            <div className="text-gray-700 space-y-4">
-              <p>{course?.description}</p>
+            <div className="space-y-3">
+              {course?.CourseContents.split(".").map((item, idx) =>
+                item.trim() ? (
+                  <li key={idx} className="leading-relaxed">
+                    {item.trim()}
+                  </li>
+                ) : null
+              )}
+            </div>
+          </section>
+          {/* Who Can Join */}
+          <section className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Who Can Join :
+            </h2>
+            <div className="space-y-3">
+              {course?.WhoCanJoin.split(".").map((item, idx) =>
+                item.trim() ? (
+                  <li key={idx} className="leading-relaxed">
+                    {item.trim()}
+                  </li>
+                ) : null
+              )}
             </div>
           </section>
         </div>

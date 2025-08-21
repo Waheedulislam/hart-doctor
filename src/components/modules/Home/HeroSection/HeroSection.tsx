@@ -3,24 +3,23 @@
 import React, { useCallback, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import bannerImage from "../../../../../public/bannerImage.png";
 
 const slides = [
   {
     id: 1,
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUYZcKhkPv7HzpOuNw0gZoUMzSGcrlnm8LJA&s",
+    src: bannerImage, // Local image
     alt: "Slide 1",
   },
   {
     id: 2,
-    src: "https://assets.telegraphindia.com/telegraph/2022/Jul/1656670434_doctor-1.jpg",
+    src: "https://www.shutterstock.com/image-vector/cpr-hands-heartbeat-line-design-600nw-2502974109.jpg", // External image
     alt: "Slide 2",
   },
   {
     id: 3,
-    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSSvagjyQ0TGHmMmpqCDY6Q0KjYUO6Nqnbhw&s",
+    src: "https://www.shutterstock.com/image-photo/world-hypertension-day-adult-holds-600nw-2147317523.jpg", // External image
     alt: "Slide 3",
   },
 ];
@@ -28,6 +27,7 @@ const slides = [
 export default function HeroSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
 
+  // Arrow controls
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
   }, [emblaApi]);
@@ -36,7 +36,7 @@ export default function HeroSection() {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  // Auto Slide Effect
+  // Auto slide every 12 seconds
   useEffect(() => {
     if (!emblaApi) return;
 
@@ -64,7 +64,8 @@ export default function HeroSection() {
                 className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-black/40" />
+              {/* Optional overlay */}
+              <div className="absolute inset-0 bg-black/10" />
             </div>
           ))}
         </div>
@@ -83,33 +84,6 @@ export default function HeroSection() {
       >
         <ChevronRight className="text-white w-6 h-6" />
       </button>
-
-      {/* Hero Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4">
-          Welcome to Our Platform
-        </h1>
-        <p className="max-w-2xl text-lg md:text-xl mb-6">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut ea ex,
-          voluptatibus delectus.
-        </p>
-        <div className="flex gap-4">
-          <Link href="/courses">
-            <Button size="lg" variant="default" className="cursor-pointer">
-              Get Started
-            </Button>
-          </Link>
-          <Link href="/about">
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-black border-white cursor-pointer"
-            >
-              Learn More
-            </Button>
-          </Link>
-        </div>
-      </div>
     </section>
   );
 }

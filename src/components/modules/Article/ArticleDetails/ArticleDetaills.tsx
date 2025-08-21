@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Heart, MessageCircle } from "lucide-react";
+import { Clock, Heart, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import { IArticle } from "@/types/Article";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
@@ -87,6 +87,7 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
           </div>
 
           {/* Content */}
+          {/* Description Section */}
           <div className="prose prose-lg max-w-none text-gray-800 space-y-6">
             <blockquote className="border-l-4 border-red-500 pl-6 italic text-gray-700 bg-red-50/50 p-4 rounded-lg">
               Every second counts. Knowing CPR can save a life – it’s more than
@@ -96,21 +97,20 @@ export function ArticleDetails({ article }: ArticleDetailsProps) {
             <h3 className="text-3xl font-bold text-gray-900">
               <span>Description :</span>
             </h3>
-            <ul className="space-y-3">
+            <div className="space-y-6">
               {article.description
-                ?.split(".")
-                .map((sentence) => sentence.trim())
-                .filter((sentence) => sentence.length > 0)
-                .map((sentence, index) => (
-                  <li
+                ?.split("\n") // split by new line for paragraphs
+                .map((para) => para.trim())
+                .filter((para) => para.length > 0)
+                .map((para, index) => (
+                  <p
                     key={index}
-                    className="flex items-center gap-2 text-lg text-gray-600 max-w-3xl"
+                    className="text-lg text-gray-600 leading-relaxed"
                   >
-                    <CheckCircle className="w-5 h-5 text-teal-500 flex-shrink-0" />
-                    {sentence}.
-                  </li>
+                    {para}
+                  </p>
                 ))}
-            </ul>
+            </div>
             <br /> <hr />
           </div>
 

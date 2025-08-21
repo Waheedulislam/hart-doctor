@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Mail, Phone } from "lucide-react";
+import Image from "next/image";
+import logo from "../../../src/app/Icon.png";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +32,7 @@ export default function Navbar() {
     if (isOpen) setIsOpen(false);
   };
 
-  // Helper to check active route (exact match or startsWith)
+  // Check active route
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -42,18 +44,18 @@ export default function Navbar() {
         }`}
       >
         {/* Topbar */}
-        <div className="bg-gray-900 text-gray-100 text-sm">
+        <div className="bg-gray-800 text-gray-100 text-sm">
           <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-2">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 <Mail size={14} /> <span>info@testdoctor.com</span>
               </div>
               <div className="flex items-center gap-1">
-                <Phone size={14} /> <span>+880 1234-567890</span>
+                <Phone size={14} /> <span>+880 1951-163533</span>
               </div>
             </div>
-            <span className="hidden sm:block">
-              Welcome to First Aid Institute!
+            <span className="hidden sm:block font-medium">
+              Welcome to Prime Aid Institute
             </span>
           </div>
         </div>
@@ -61,14 +63,17 @@ export default function Navbar() {
         {/* Main Navbar */}
         <nav className="bg-white">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex justify-between items-center py-3">
+            <div className="flex justify-between items-center py-2">
               {/* Logo */}
-              <Link
-                href="/"
-                className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent"
-                onClick={handleLinkClick}
-              >
-                First Aid Institute
+              <Link href="/" onClick={handleLinkClick}>
+                <Image
+                  src={logo}
+                  alt="Prime Aid Institute Logo"
+                  width={100}
+                  height={100}
+                  className="object-contain"
+                  priority
+                />
               </Link>
 
               {/* Desktop Menu */}
@@ -78,12 +83,12 @@ export default function Navbar() {
                     key={name}
                     href={href}
                     onClick={handleLinkClick}
-                    className={`relative inline-block text-xl cursor-pointer
-                      hover:bg-gradient-to-r hover:from-emerald-600 hover:to-teal-500 hover:bg-clip-text hover:text-transparent transition
+                    className={`relative inline-block text-lg cursor-pointer
+                      hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:bg-clip-text hover:text-transparent transition
                       ${
                         isActive(href)
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent border-b-2 border-emerald-600"
-                          : ""
+                          ? "bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent border-b-2 border-red-600"
+                          : "text-gray-800"
                       }
                     `}
                   >
@@ -95,7 +100,7 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="md:hidden p-2"
+                className="md:hidden p-2 text-red-700"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -110,19 +115,19 @@ export default function Navbar() {
                     key={name}
                     href={href}
                     onClick={handleLinkClick}
-                    className={`relative inline-block px-1 py-1 text-xl cursor-pointer
-                      hover:bg-gradient-to-r hover:from-emerald-600 hover:to-teal-500 hover:bg-clip-text hover:text-transparent transition
+                    className={`relative inline-block px-1 py-1 text-lg cursor-pointer
+                      hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:bg-clip-text hover:text-transparent transition
                       ${
                         isActive(href)
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent"
-                          : ""
+                          ? "bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent"
+                          : "text-gray-800"
                       }
                     `}
                   >
                     {name}
                     {isActive(href) && (
                       <span
-                        className="absolute bottom-0 left-0 h-0.5 bg-emerald-600"
+                        className="absolute bottom-0 left-0 h-0.5 bg-red-600"
                         style={{ width: "60px" }}
                       />
                     )}

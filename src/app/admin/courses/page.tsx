@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/card";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import * as z from "zod";
 import NMPageHeader from "@/components/shared/NMPageHader/NMPageHader";
 import { courseValidationSchema } from "@/components/validationSchema/courseValidationSchema";
 import { createCourse } from "@/services/Courses";
@@ -36,6 +35,9 @@ export default function ReviewsPage() {
     description: "",
     securePassword: "",
     learnDescription: "",
+    TrainingObjectives: "",
+    CourseContents: "",
+    WhoCanJoin: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -153,6 +155,9 @@ export default function ReviewsPage() {
           description: "",
           securePassword: "",
           learnDescription: "",
+          TrainingObjectives: "",
+          CourseContents: "",
+          WhoCanJoin: "",
         });
         setSelectedFileName("");
         setErrors({});
@@ -386,6 +391,72 @@ export default function ReviewsPage() {
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="w-4 h-4" />
                       {errors.description}
+                    </div>
+                  )}
+                </div>
+                {/* TrainingObjectives */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Training Objectives *
+                  </label>
+                  <Textarea
+                    value={formData.TrainingObjectives}
+                    onChange={(e) =>
+                      handleChange("TrainingObjectives", e.target.value)
+                    }
+                    placeholder="Tell us more about what patients will learn from this course"
+                    className={
+                      errors.description ? "border-red-300" : "border-gray-200"
+                    }
+                  />
+                  {errors.TrainingObjectives && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.TrainingObjectives}
+                    </div>
+                  )}
+                </div>
+                {/* CourseContents */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Course Contents *
+                  </label>
+                  <Textarea
+                    value={formData.CourseContents}
+                    onChange={(e) =>
+                      handleChange("CourseContents", e.target.value)
+                    }
+                    placeholder="Tell us more about what patients will learn from this course"
+                    className={
+                      errors.CourseContents
+                        ? "border-red-300"
+                        : "border-gray-200"
+                    }
+                  />
+                  {errors.CourseContents && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.CourseContents}
+                    </div>
+                  )}
+                </div>
+                {/* Who Can Join */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Who Can Join *
+                  </label>
+                  <Textarea
+                    value={formData.WhoCanJoin}
+                    onChange={(e) => handleChange("WhoCanJoin", e.target.value)}
+                    placeholder="Tell us more about what patients will learn from this course"
+                    className={
+                      errors.WhoCanJoin ? "border-red-300" : "border-gray-200"
+                    }
+                  />
+                  {errors.WhoCanJoin && (
+                    <div className="flex items-center gap-1 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.WhoCanJoin}
                     </div>
                   )}
                 </div>
