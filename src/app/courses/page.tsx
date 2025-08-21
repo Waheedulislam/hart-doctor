@@ -73,8 +73,10 @@ const CoursePage = () => {
               </div>
 
               <div className="p-6 space-y-3 relative z-10">
-                <h3 className="text-xl font-extrabold bg-gradient-to-r from-teal-500 to-emerald-400 bg-clip-text text-transparent">
-                  {course.title}
+                <h3 className="text-lg md:text-xl lg:text-lg font-semibold leading-snug cursor-pointer hover:text-teal-700">
+                  {course.title.length > 28
+                    ? `${course.title.slice(0, 32)}...`
+                    : course.title}
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 font-semibold">
                   Duration: {course.duration}
@@ -84,7 +86,7 @@ const CoursePage = () => {
                 </p>
                 <Link key={course._id} href={`/courses/${course._id}`}>
                   <Button
-                    className="w-full mt-3 bg-gradient-to-r from-teal-500 to-emerald-400 text-white px-6 py-3 rounded-lg font-semibold
+                    className="w-full cursor-pointer mt-3 bg-gradient-to-r from-teal-500 to-emerald-400 text-white px-6 py-3 rounded-lg font-semibold
                              hover:from-teal-600 hover:to-emerald-500 shadow-lg hover:shadow-teal-400/40 transition-all duration-300"
                   >
                     DETAILS

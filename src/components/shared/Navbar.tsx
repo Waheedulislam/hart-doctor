@@ -32,7 +32,6 @@ export default function Navbar() {
     if (isOpen) setIsOpen(false);
   };
 
-  // Check active route
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -84,10 +83,10 @@ export default function Navbar() {
                     href={href}
                     onClick={handleLinkClick}
                     className={`relative inline-block text-lg cursor-pointer
-                      hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:bg-clip-text hover:text-transparent transition
+                      hover:bg-gradient-to-r hover:from-emerald-600 hover:to-teal-500 hover:bg-clip-text hover:text-transparent transition
                       ${
                         isActive(href)
-                          ? "bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent border-b-2 border-red-600"
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent border-b-2 border-emerald-600"
                           : "text-gray-800"
                       }
                     `}
@@ -100,7 +99,7 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="md:hidden p-2 text-red-700"
+                className="md:hidden p-2 text-emerald-600"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -116,10 +115,10 @@ export default function Navbar() {
                     href={href}
                     onClick={handleLinkClick}
                     className={`relative inline-block px-1 py-1 text-lg cursor-pointer
-                      hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:bg-clip-text hover:text-transparent transition
+                      hover:bg-gradient-to-r hover:from-emerald-600 hover:to-teal-500 hover:bg-clip-text hover:text-transparent transition
                       ${
                         isActive(href)
-                          ? "bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent"
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent"
                           : "text-gray-800"
                       }
                     `}
@@ -127,7 +126,7 @@ export default function Navbar() {
                     {name}
                     {isActive(href) && (
                       <span
-                        className="absolute bottom-0 left-0 h-0.5 bg-red-600"
+                        className="absolute bottom-0 left-0 h-0.5 bg-emerald-600"
                         style={{ width: "60px" }}
                       />
                     )}

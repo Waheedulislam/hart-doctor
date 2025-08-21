@@ -18,7 +18,7 @@ export default function OurCourses() {
   const [courses, setCourses] = useState<ICourses[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  console.log(courses);
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -48,15 +48,16 @@ export default function OurCourses() {
       </div>
     );
   }
+
   return (
     <section className="max-w-6xl mx-auto px-6 py-16">
-      <h1 className="text-6xl font-medium bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent mb-12 text-center">
+      <h1 className="text-6xl md:text-7xl font-medium bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent mb-12 text-center">
         Our Courses
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {courses.map((course, index) => (
+        {courses.map((course) => (
           <Card
-            key={index}
+            key={course._id}
             className="rounded-2xl overflow-hidden shadow-lg border hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:border-emerald-500 "
           >
             <div className="relative w-full h-56 -mt-10">
@@ -68,7 +69,13 @@ export default function OurCourses() {
               />
             </div>
             <CardHeader>
-              <h3 className="font-bold text-lg">{course.title}</h3>
+              <Link key={course._id} href={`/courses/${course._id}`}>
+                <h3 className="text-lg md:text-xl lg:text-lg font-semibold leading-snug cursor-pointer hover:text-t">
+                  {course.title.length > 28
+                    ? `${course.title.slice(0, 32)}...`
+                    : course.title}
+                </h3>
+              </Link>
             </CardHeader>
             <CardContent>
               <p className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent font-semibold">
@@ -80,7 +87,7 @@ export default function OurCourses() {
             <Link key={course._id} href={`/courses/${course._id}`}>
               <Button
                 className="w-[calc(100%-2rem)] mx-4 mt-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold py-3 rounded-xl 
-               transition-transform transform hover:scale-105 hover:from-emerald-700 hover:to-teal-600"
+                transition-transform transform hover:scale-105 hover:from-emerald-700 hover:to-teal-600 cursor-pointer"
               >
                 DETAILS
               </Button>
